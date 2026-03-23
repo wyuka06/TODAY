@@ -1,328 +1,580 @@
-import { useState, useEffect } from "react";
+<!DOCTYPE html>
 
-const STORAGE_KEY = "recipe-app-v3";
-const F = { fontFamily:"'Nunito','Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif" };
-
-function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
-
-const EVAL_TAGS = ["味","手間","コスパ","見た目","ヘルシー","時短"];
-const RATING_LABEL = ["","うーん…","また作る！","神レシピ✨"];
-const FOOD_EMOJIS = ["🍜","🍛","🍱","🥗","🍝","🥘","🍲","🥩","🍣","🍕","🥞","🍰","🥑","🍳","🫕"];
-const CARD_COLORS = [
-  { bg:"#FFF0F5", accent:"#FFB3CB" },
-  { bg:"#FFF8EC", accent:"#FFCF7F" },
-  { bg:"#F0FAF5", accent:"#91DDB8" },
-  { bg:"#F0F5FF", accent:"#A0B8FF" },
-  { bg:"#FDF0FF", accent:"#D4A0FF" },
-];
-
-function getEmoji(name) {
-  let h = 0;
-  for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h);
-  return FOOD_EMOJIS[Math.abs(h) % FOOD_EMOJIS.length];
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Today ✈ 旅のしおり</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,700;1,700&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sky:#5BC4DC; --sky-deep:#3AAFC9; --sky-light:#A8DFF0; --sky-pale:#E8F7FC;
+  --ink:#1C3A4A; --ink-mid:#4A7A8A; --ink-soft:#9ABDC8; --border:#D0EAF2;
+  --white:#FFFFFF;
+  --c1:#F4A0A0; --c2:#7DD4AC; --c3:#5BC4DC; --c4:#F7D080; --c5:#C5A8E0;
 }
-function cardColor(id) {
-  return CARD_COLORS[parseInt(id, 36) % CARD_COLORS.length] || CARD_COLORS[0];
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Zen Maru Gothic',sans-serif;background:var(--sky-pale);color:var(--ink);min-height:100vh;}
+
+/* ━━ HEADER ━━ */
+.header{
+background:linear-gradient(160deg,#52C8E0 0%,#3AAFC9 55%,#2A9AB5 100%);
+position:sticky;top:0;z-index:100;
+box-shadow:0 3px 20px rgba(28,58,74,.2);
 }
+.header-inner{display:flex;align-items:center;padding:12px 18px 10px;gap:10px;}
 
-const HeartIcon = ({ filled }) => (
-  <svg width="16" height="16" viewBox="0 0 24 24"
-    fill={filled ? "#ff8fab" : "none"} stroke={filled ? "#ff8fab" : "#ccc"}
-    strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-  </svg>
-);
+/* TODAY white outline italic */
+.logo-wrap{position:relative;display:inline-block;line-height:1;}
+.lt-white{
+font-family:‘Libre Baskerville’,serif;
+font-style:italic;font-weight:700;font-size:32px;letter-spacing:-0.5px;
+color:#fff;
+text-shadow:
+0 0 1px rgba(255,255,255,.6),
+1px 1px 3px rgba(28,58,74,.25);
+display:block;white-space:nowrap;
+}
+.logo-sub{font-size:10px;color:rgba(255,255,255,.82);letter-spacing:.14em;text-transform:uppercase;margin-top:1px;}
 
-const labelStyle = { display:"block", fontSize:10, fontWeight:800, color:"#c08090", letterSpacing:"0.1em", marginBottom:5, textTransform:"uppercase" };
-const inputBase = { width:"100%", borderRadius:13, border:"2px solid #f0d8e0", padding:"10px 12px", fontSize:13, fontWeight:600, color:"#3a2030", background:"#fff", ...F, transition:"border-color .15s" };
+/* trip title in header */
+.header-trip{
+flex:1;
+font-family:‘Zen Maru Gothic’,sans-serif;
+font-size:14px;font-weight:700;
+color:rgba(255,255,255,.95);
+border:none;background:transparent;outline:none;
+min-width:0;
+}
+.header-trip::placeholder{color:rgba(255,255,255,.55);font-weight:400;}
 
-function FormField({ label, value, onChange, placeholder, multi=false, rows=3 }) {
-  return (
-    <div style={{ marginBottom:16 }}>
-      <label style={labelStyle}>{label}</label>
-      {multi
-        ? <textarea value={value} onChange={onChange} placeholder={placeholder} rows={rows} style={{ ...inputBase, resize:"vertical" }} />
-        : <input value={value} onChange={onChange} placeholder={placeholder} style={inputBase} />
-      }
+/* wave */
+.header-wave{display:block;overflow:hidden;line-height:0;height:18px;}
+.header-wave svg{display:block;width:100%;height:100%;}
+
+/* ━━ DATE TABS ━━ */
+.date-bar-wrap{
+background:var(–white);
+border-bottom:1.5px solid var(–border);
+position:sticky;top:0;z-index:90;
+/* will be set below sticky offset after header */
+}
+.date-bar{
+display:flex;align-items:center;gap:0;
+overflow-x:auto;padding:10px 12px 8px;
+scrollbar-width:none;
+}
+.date-bar::-webkit-scrollbar{display:none;}
+
+.date-tab{
+flex-shrink:0;
+display:flex;flex-direction:column;align-items:center;
+padding:7px 14px;margin-right:6px;
+border-radius:12px;cursor:pointer;
+border:1.5px solid var(–border);
+background:var(–white);
+transition:all .15s;
+min-width:56px;
+}
+.date-tab:hover{border-color:var(–sky);background:var(–sky-pale);}
+.date-tab.active{background:var(–sky-deep);border-color:var(–sky-deep);}
+.date-tab .dt-day{font-size:10px;font-weight:700;color:var(–ink-soft);letter-spacing:.04em;}
+.date-tab.active .dt-day{color:rgba(255,255,255,.8);}
+.date-tab .dt-num{font-size:18px;font-weight:700;color:var(–ink);line-height:1.1;}
+.date-tab.active .dt-num{color:#fff;}
+.date-tab .dt-wd{font-size:10px;color:var(–ink-soft);}
+.date-tab.active .dt-wd{color:rgba(255,255,255,.75);}
+
+.date-add-btn{
+flex-shrink:0;
+width:40px;height:40px;
+border-radius:12px;
+border:1.5px dashed var(–sky);
+background:var(–white);
+color:var(–sky-deep);
+font-size:20px;cursor:pointer;
+display:flex;align-items:center;justify-content:center;
+transition:background .15s;
+}
+.date-add-btn:hover{background:var(–sky-pale);}
+
+/* ━━ MAIN ━━ */
+.main{max-width:680px;margin:0 auto;padding:16px 15px 120px;}
+
+/* ━━ ADD BAR ━━ */
+.add-bar{background:var(–white);border:1.5px solid var(–border);border-radius:14px;padding:11px 14px;margin-bottom:14px;display:flex;align-items:center;flex-wrap:wrap;gap:8px;box-shadow:0 1px 6px rgba(91,196,220,.08);}
+.add-name{font-family:‘Zen Maru Gothic’,sans-serif;font-size:14px;border:none;background:transparent;color:var(–ink);outline:none;flex:1;min-width:120px;}
+.add-name::placeholder{color:var(–ink-soft);}
+.add-time{font-family:‘Zen Maru Gothic’,sans-serif;font-size:13px;border:1px solid var(–border);border-radius:8px;background:var(–sky-pale);color:var(–ink);padding:5px 8px;outline:none;width:90px;}
+.cdots{display:flex;gap:5px;}
+.cdot{width:18px;height:18px;border-radius:50%;cursor:pointer;border:2.5px solid transparent;transition:transform .15s;}
+.cdot:hover{transform:scale(1.2);}
+.cdot.sel{border-color:var(–ink);transform:scale(1.18);}
+.cdot[data-c=“1”]{background:var(–c1)}.cdot[data-c=“2”]{background:var(–c2)}.cdot[data-c=“3”]{background:var(–c3)}.cdot[data-c=“4”]{background:var(–c4)}.cdot[data-c=“5”]{background:var(–c5)}
+.add-btn{background:linear-gradient(135deg,var(–sky-deep),var(–sky));color:#fff;border:none;border-radius:10px;width:34px;height:34px;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(58,175,201,.35);transition:opacity .15s,transform .1s;}
+.add-btn:hover{opacity:.82}.add-btn:active{transform:scale(.91)}
+
+/* no-date info */
+.no-date{text-align:center;padding:40px 20px;color:var(–ink-soft);}
+.no-date .ei{font-size:38px;margin-bottom:10px;}
+.no-date p{font-size:13px;line-height:1.8;}
+
+/* ━━ ITEMS ━━ */
+.items-list{display:flex;flex-direction:column;gap:8px;}
+.item-row{background:var(–white);border:1.5px solid var(–border);border-radius:13px;display:flex;align-items:center;overflow:hidden;cursor:pointer;transition:box-shadow .15s,transform .12s;user-select:none;}
+.item-row:hover{box-shadow:0 4px 16px rgba(91,196,220,.22);transform:translateY(-1px);}
+.item-row.completed{opacity:.6;}
+.item-row.dragging{opacity:.38;transform:scale(.97);}
+.item-row.drag-over{border-color:var(–sky);box-shadow:0 0 0 2px var(–sky-light);}
+.i-strip{width:5px;align-self:stretch;}
+.i-strip[data-c=“1”]{background:var(–c1)}.i-strip[data-c=“2”]{background:var(–c2)}.i-strip[data-c=“3”]{background:var(–c3)}.i-strip[data-c=“4”]{background:var(–c4)}.i-strip[data-c=“5”]{background:var(–c5)}
+.i-drag{padding:13px 7px 13px 10px;color:var(–ink-soft);font-size:12px;cursor:grab;line-height:1;}
+.i-drag:active{cursor:grabbing}
+.i-time{font-size:12px;color:var(–sky-deep);font-weight:700;padding:13px 8px 13px 2px;flex-shrink:0;white-space:nowrap;min-width:46px;letter-spacing:.02em;}
+.i-sep{width:1px;height:22px;background:var(–border);flex-shrink:0;}
+.i-name{flex:1;font-size:14px;font-weight:500;padding:13px 6px 13px 10px;color:var(–ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.item-row.completed .i-name{text-decoration:line-through;color:var(–ink-soft);}
+.i-pin{font-size:12px;padding:13px 8px 13px 2px;color:var(–ink-soft);flex-shrink:0;}
+.i-chk{width:22px;height:22px;border-radius:50%;border:1.5px solid var(–ink-soft);margin:13px 12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;cursor:pointer;}
+.i-chk.done{background:var(–sky-deep);border-color:var(–sky-deep);color:#fff;}
+.i-chk.done::after{content:‘✓’;font-size:12px;font-weight:700;}
+
+.empty-state{text-align:center;padding:40px 20px;color:var(–ink-soft);}
+.empty-state .ei{font-size:38px;margin-bottom:10px;}
+.empty-state p{font-size:13px;line-height:1.8;}
+
+/* ━━ MODAL ━━ */
+.overlay{position:fixed;inset:0;background:rgba(28,58,74,.4);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+.overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(–white);border-radius:22px 22px 0 0;width:100%;max-width:680px;max-height:90vh;overflow-y:auto;padding-bottom:48px;transform:translateY(50px);transition:transform .28s cubic-bezier(.34,1.25,.64,1);}
+.overlay.open .modal{transform:translateY(0);}
+.m-handle{width:36px;height:4px;background:var(–border);border-radius:2px;margin:14px auto 0;}
+.m-stripe{height:5px;margin-top:12px;}
+.m-stripe[data-c=“1”]{background:var(–c1)}.m-stripe[data-c=“2”]{background:var(–c2)}.m-stripe[data-c=“3”]{background:var(–c3)}.m-stripe[data-c=“4”]{background:var(–c4)}.m-stripe[data-c=“5”]{background:var(–c5)}
+.m-topbar{display:flex;align-items:center;gap:10px;padding:14px 18px 12px;border-bottom:1.5px solid var(–border);}
+.m-title{flex:1;font-size:16px;font-weight:700;color:var(–ink);}
+.m-time-edit{font-family:‘Zen Maru Gothic’,sans-serif;font-size:13px;border:1px solid var(–border);border-radius:8px;background:var(–sky-pale);color:var(–ink);padding:5px 8px;outline:none;width:90px;}
+.m-close{background:none;border:none;font-size:17px;color:var(–ink-soft);cursor:pointer;padding:4px;}
+.m-close:hover{color:var(–ink)}
+.m-body{padding:16px 18px;display:flex;flex-direction:column;gap:18px;}
+.sec-lbl{font-size:10px;font-weight:700;color:var(–sky-deep);letter-spacing:.12em;text-transform:uppercase;margin-bottom:7px;}
+.m-textarea{font-family:‘Zen Maru Gothic’,sans-serif;font-size:14px;color:var(–ink);border:1.5px solid var(–border);border-radius:10px;background:var(–sky-pale);padding:12px;resize:none;outline:none;width:100%;min-height:88px;line-height:1.7;transition:border-color .15s;}
+.m-textarea:focus{border-color:var(–sky)}.m-textarea::placeholder{color:var(–ink-soft)}
+.url-row{display:flex;gap:8px;}
+.m-url{font-family:‘Zen Maru Gothic’,sans-serif;font-size:13px;border:1.5px solid var(–border);border-radius:10px;background:var(–sky-pale);color:var(–ink);padding:9px 12px;outline:none;flex:1;transition:border-color .15s;}
+.m-url:focus{border-color:var(–sky)}.m-url::placeholder{color:var(–ink-soft)}
+.url-btn{background:linear-gradient(135deg,var(–sky-deep),var(–sky));color:#fff;border:none;border-radius:10px;padding:9px 14px;font-family:‘Zen Maru Gothic’,sans-serif;font-size:13px;cursor:pointer;white-space:nowrap;transition:opacity .15s;}
+.url-btn:hover{opacity:.8}
+.url-list{display:flex;flex-direction:column;gap:6px;margin-top:8px;}
+.url-chip{display:flex;align-items:center;gap:8px;background:var(–sky-pale);border:1px solid var(–border);border-radius:8px;padding:7px 10px;font-size:12px;}
+.url-chip a{flex:1;color:var(–sky-deep);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.url-chip a:hover{text-decoration:underline}
+.url-del{background:none;border:none;color:var(–ink-soft);cursor:pointer;font-size:13px;padding:0 2px;}
+.url-del:hover{color:var(–ink)}
+.img-drop{border:1.5px dashed var(–sky);border-radius:12px;padding:18px;text-align:center;cursor:pointer;background:var(–sky-pale);font-size:13px;color:var(–ink-mid);transition:background .15s;}
+.img-drop:hover{background:#D0EFF8}
+.img-drop .di{font-size:22px;margin-bottom:4px;}
+.hidden-f{display:none;}
+.img-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px;}
+.img-wrap{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;border:1.5px solid var(–border);}
+.img-wrap img{width:100%;height:100%;object-fit:cover;}
+.img-del{position:absolute;top:4px;right:4px;background:rgba(28,58,74,.72);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.m-color-row{display:flex;gap:8px;}
+.mcd{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2.5px solid transparent;transition:transform .15s;}
+.mcd:hover{transform:scale(1.15)}.mcd.sel{border-color:var(–ink);transform:scale(1.12)}
+.mcd[data-c=“1”]{background:var(–c1)}.mcd[data-c=“2”]{background:var(–c2)}.mcd[data-c=“3”]{background:var(–c3)}.mcd[data-c=“4”]{background:var(–c4)}.mcd[data-c=“5”]{background:var(–c5)}
+.m-del{background:none;border:1.5px solid #F4A0A0;border-radius:10px;color:#C05050;font-family:‘Zen Maru Gothic’,sans-serif;font-size:13px;padding:11px;cursor:pointer;width:100%;margin-top:4px;transition:background .15s;}
+.m-del:hover{background:#FDE8E8}
+
+/* ━━ DATE MODAL ━━ */
+.date-overlay{position:fixed;inset:0;background:rgba(28,58,74,.45);z-index:300;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+.date-overlay.open{opacity:1;pointer-events:all;}
+.date-modal{background:var(–white);border-radius:20px;padding:28px 24px 24px;width:90%;max-width:340px;box-shadow:0 12px 40px rgba(28,58,74,.2);transform:scale(.95);transition:transform .22s cubic-bezier(.34,1.3,.64,1);}
+.date-overlay.open .date-modal{transform:scale(1);}
+.dm-title{font-size:15px;font-weight:700;color:var(–ink);margin-bottom:16px;text-align:center;}
+.dm-input{font-family:‘Zen Maru Gothic’,sans-serif;font-size:15px;border:1.5px solid var(–border);border-radius:10px;background:var(–sky-pale);color:var(–ink);padding:10px 12px;outline:none;width:100%;transition:border-color .15s;}
+.dm-input:focus{border-color:var(–sky);}
+.dm-btns{display:flex;gap:10px;margin-top:16px;}
+.dm-cancel{flex:1;background:none;border:1.5px solid var(–border);border-radius:10px;color:var(–ink-mid);font-family:‘Zen Maru Gothic’,sans-serif;font-size:14px;padding:10px;cursor:pointer;transition:background .15s;}
+.dm-cancel:hover{background:var(–sky-pale);}
+.dm-ok{flex:1;background:linear-gradient(135deg,var(–sky-deep),var(–sky));border:none;border-radius:10px;color:#fff;font-family:‘Zen Maru Gothic’,sans-serif;font-size:14px;padding:10px;cursor:pointer;transition:opacity .15s;}
+.dm-ok:hover{opacity:.82}
+
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(–border);border-radius:2px}
+</style>
+
+</head>
+<body>
+
+<!-- HEADER -->
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo-wrap">
+      <span class="lt-white">Today</span>
+      <div class="logo-sub">旅のしおり ✈</div>
     </div>
-  );
-}
+    <input class="header-trip" id="tripTitle" placeholder="旅のタイトルを入力…" maxlength="40">
+  </div>
+  <div class="header-wave">
+    <svg viewBox="0 0 400 18" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,6 C40,15 80,1 120,8 C160,15 200,1 240,8 C280,15 320,3 360,8 C385,11 396,7 400,8 L400,18 L0,18 Z" fill="#E8F7FC"/>
+    </svg>
+  </div>
+</header>
 
-function Section({ label, children }) {
-  return (
-    <div style={{ background:"#fff", borderRadius:16, padding:"14px 16px", marginBottom:10, boxShadow:"0 2px 10px rgba(255,100,140,0.07)" }}>
-      <div style={{ fontSize:10, fontWeight:800, color:"#c08090", letterSpacing:"0.1em", textTransform:"uppercase", marginBottom:7 }}>{label}</div>
-      {children}
+<!-- DATE TABS -->
+
+<div class="date-bar-wrap">
+  <div class="date-bar" id="dateBar">
+    <!-- tabs injected here -->
+    <button class="date-add-btn" id="dateAddBtn" title="日付を追加">＋</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+
+<main class="main" id="mainArea">
+  <!-- no date selected -->
+  <div class="no-date" id="noDateMsg">
+    <div class="ei">📅</div>
+    <p>「＋」ボタンで日付を追加して<br>スケジュールを立てよう！</p>
+  </div>
+
+  <!-- add bar (hidden until date selected) -->
+
+  <div class="add-bar" id="addBar" style="display:none;">
+    <input class="add-name" id="addName" placeholder="＋ 項目を追加…" maxlength="60">
+    <input class="add-time" id="addTime" type="time">
+    <div class="cdots" id="colorPicker">
+      <div class="cdot sel" data-c="1"></div>
+      <div class="cdot" data-c="2"></div>
+      <div class="cdot" data-c="3"></div>
+      <div class="cdot" data-c="4"></div>
+      <div class="cdot" data-c="5"></div>
     </div>
-  );
+    <button class="add-btn" id="addBtn">+</button>
+  </div>
+
+  <div class="items-list" id="itemsList" style="display:none;"></div>
+  <div class="empty-state" id="emptyState" style="display:none;">
+    <div class="ei">⛵</div>
+    <p>この日はまだ予定がありません<br>上から追加してみよう！</p>
+  </div>
+</main>
+
+<!-- ITEM DETAIL MODAL -->
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="m-handle"></div>
+    <div class="m-stripe" id="mStripe" data-c="1"></div>
+    <div class="m-topbar">
+      <span class="m-title" id="mTitle"></span>
+      <input class="m-time-edit" id="mTime" type="time">
+      <button class="m-close" id="mClose">✕</button>
+    </div>
+    <div class="m-body">
+      <div>
+        <div class="sec-lbl">カラー</div>
+        <div class="m-color-row" id="mColors">
+          <div class="mcd sel" data-c="1"></div><div class="mcd" data-c="2"></div>
+          <div class="mcd" data-c="3"></div><div class="mcd" data-c="4"></div><div class="mcd" data-c="5"></div>
+        </div>
+      </div>
+      <div>
+        <div class="sec-lbl">メモ</div>
+        <textarea class="m-textarea" id="mMemo" placeholder="コメントを書く…"></textarea>
+      </div>
+      <div>
+        <div class="sec-lbl">参考URL</div>
+        <div class="url-row">
+          <input class="m-url" id="mUrlIn" type="url" placeholder="https://…">
+          <button class="url-btn" id="urlAdd">追加</button>
+        </div>
+        <div class="url-list" id="urlList"></div>
+      </div>
+      <div>
+        <div class="sec-lbl">キャプチャ・画像</div>
+        <div class="img-drop" id="imgDrop"><div class="di">📷</div><div>タップして画像を追加</div></div>
+        <input class="hidden-f" id="imgFile" type="file" accept="image/*" multiple>
+        <div class="img-grid" id="imgGrid"></div>
+      </div>
+      <button class="m-del" id="mDel">🗑️ この項目を削除</button>
+    </div>
+  </div>
+</div>
+
+<!-- DATE PICKER MODAL -->
+
+<div class="date-overlay" id="dateOverlay">
+  <div class="date-modal">
+    <div class="dm-title">📅 日付を追加</div>
+    <input class="dm-input" id="dmInput" type="date">
+    <div class="dm-btns">
+      <button class="dm-cancel" id="dmCancel">キャンセル</button>
+      <button class="dm-ok" id="dmOk">追加する</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ━━ STATE ━━
+let state = JSON.parse(localStorage.getItem('tabi4_state') || 'null') || {
+  title: '',
+  dates: [],      // sorted array of "YYYY-MM-DD"
+  items: {}       // { "YYYY-MM-DD": [{id,name,time,color,done,memo,urls,images}] }
+};
+let curDate = state.dates[0] || null;
+let selC = 1, curId = null, dragSrc = null;
+
+function save() { localStorage.setItem('tabi4_state', JSON.stringify(state)); }
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function hasDet(it) { return it.memo || (it.urls&&it.urls.length) || (it.images&&it.images.length); }
+
+// ━━ TRIP TITLE ━━
+const tti = document.getElementById('tripTitle');
+tti.value = state.title;
+tti.addEventListener('input', () => { state.title = tti.value; save(); });
+
+// ━━ DATE HELPERS ━━
+const WD = ['日','月','火','水','木','金','土'];
+function parseDateStr(s) {
+  const [y,m,d] = s.split('-').map(Number);
+  return new Date(y, m-1, d);
+}
+function fmtDateTab(s) {
+  const dt = parseDateStr(s);
+  return { mon: dt.getMonth()+1, day: dt.getDate(), wd: WD[dt.getDay()] };
 }
 
-const css = `
-  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
-  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
-  body { background:#FFF6F8; }
-  ::-webkit-scrollbar { width:4px; }
-  ::-webkit-scrollbar-thumb { background:#f0c0d0; border-radius:99px; }
-  @keyframes fadeUp  { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
-  @keyframes floatIn { from{opacity:0;transform:scale(0.94)} to{opacity:1;transform:scale(1)} }
-  .card-item { transition:transform .18s, box-shadow .18s; }
-  .card-item:hover { transform:translateY(-3px); }
-  .btn-s { transition:transform .12s, filter .12s; cursor:pointer; }
-  .btn-s:hover { transform:scale(0.97); filter:brightness(0.96); }
-  .fade-up { animation:fadeUp .38s cubic-bezier(.22,.68,0,1.2) both; }
-  .float-in { animation:floatIn .3s ease both; }
-  .tp { transition:background .15s, color .15s, border-color .15s; }
-  input:focus, textarea:focus { border-color:#FF8FAB !important; outline:none; box-shadow:0 0 0 3px rgba(255,143,171,0.18); }
-  .star-btn { transition:transform .12s; }
-  .star-btn:hover { transform:scale(1.28); }
-`;
+// ━━ RENDER DATE TABS ━━
+function renderDateBar() {
+  const bar = document.getElementById('dateBar');
+  // remove old tabs
+  bar.querySelectorAll('.date-tab').forEach(t => t.remove());
+  const addBtn = document.getElementById('dateAddBtn');
+  state.dates.forEach(ds => {
+    const {mon,day,wd} = fmtDateTab(ds);
+    const tab = document.createElement('div');
+    tab.className = 'date-tab' + (ds === curDate ? ' active' : '');
+    tab.dataset.date = ds;
+    tab.innerHTML = `<span class="dt-day">${mon}月</span><span class="dt-num">${day}</span><span class="dt-wd">${wd}</span>`;
+    tab.addEventListener('click', () => { curDate = ds; renderDateBar(); renderItems(); });
 
-export default function App() {
-  const [recipes, setRecipes] = useState(() => {
-    try { const s = localStorage.getItem(STORAGE_KEY); return s ? JSON.parse(s) : []; } catch { return []; }
+    // long press to delete date
+    let pressTimer;
+    tab.addEventListener('pointerdown', () => {
+      pressTimer = setTimeout(() => {
+        if (confirm(`${mon}/${day} を削除しますか？（予定も消えます）`)) {
+          state.dates = state.dates.filter(d => d !== ds);
+          delete state.items[ds];
+          if (curDate === ds) curDate = state.dates[0] || null;
+          save(); renderDateBar(); renderItems();
+        }
+      }, 700);
+    });
+    tab.addEventListener('pointerup', () => clearTimeout(pressTimer));
+    tab.addEventListener('pointercancel', () => clearTimeout(pressTimer));
+
+    bar.insertBefore(tab, addBtn);
   });
-  const [view, setView] = useState("list");
-  const [editId, setEditId] = useState(null);
-  const [detailId, setDetailId] = useState(null);
-  const [filter, setFilter] = useState("all");
-  const [search, setSearch] = useState("");
-  const [formatLoad, setFormatLoad] = useState(false);
-  const [aiDraft, setAiDraft] = useState(null);
+}
 
-  const blank = { name:"", recipe:"", actualTime:"", url:"", star:0, evalTags:[], improvement:"", oneliner:"", favorite:false };
-  const [form, setForm] = useState(blank);
+// ━━ ADD DATE ━━
+document.getElementById('dateAddBtn').addEventListener('click', () => {
+  // default to tomorrow or day after last date
+  let def = new Date();
+  if (state.dates.length) {
+    const last = parseDateStr(state.dates[state.dates.length - 1]);
+    def = new Date(last); def.setDate(def.getDate() + 1);
+  }
+  document.getElementById('dmInput').value = def.toISOString().slice(0,10);
+  document.getElementById('dateOverlay').classList.add('open');
+});
+document.getElementById('dmCancel').addEventListener('click', () => document.getElementById('dateOverlay').classList.remove('open'));
+document.getElementById('dmOk').addEventListener('click', () => {
+  const val = document.getElementById('dmInput').value;
+  if (!val) return;
+  if (!state.dates.includes(val)) {
+    state.dates.push(val);
+    state.dates.sort();
+    if (!state.items[val]) state.items[val] = [];
+  }
+  curDate = val;
+  save(); renderDateBar(); renderItems();
+  document.getElementById('dateOverlay').classList.remove('open');
+});
+document.getElementById('dateOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('dateOverlay')) document.getElementById('dateOverlay').classList.remove('open');
+});
 
-  useEffect(() => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(recipes)); } catch {} }, [recipes]);
+// ━━ RENDER ITEMS ━━
+function renderItems() {
+  const noDate = document.getElementById('noDateMsg');
+  const addBar = document.getElementById('addBar');
+  const list = document.getElementById('itemsList');
+  const empty = document.getElementById('emptyState');
 
-  const upd = (key) => (e) => setForm(f => ({ ...f, [key]: e.target.value }));
-  const save = () => {
-    if (!form.name.trim()) return;
-    if (editId) setRecipes(r => r.map(x => x.id === editId ? { ...form, id: editId } : x));
-    else setRecipes(r => [{ ...form, id: genId(), createdAt: Date.now() }, ...r]);
-    setForm(blank); setEditId(null); setView("list");
-  };
-  const del = (id) => { setRecipes(r => r.filter(x => x.id !== id)); setView("list"); };
-  const toggleFav = (id) => setRecipes(r => r.map(x => x.id === id ? { ...x, favorite:!x.favorite } : x));
-  const startEdit = (rec) => { setForm({ ...blank, ...rec }); setEditId(rec.id); setView("form"); };
-  const openDetail = (id) => { setDetailId(id); setView("detail"); };
-  const goList = () => { setView("list"); setEditId(null); setForm(blank); };
+  if (!curDate) {
+    noDate.style.display = 'block';
+    addBar.style.display = 'none';
+    list.style.display = 'none';
+    empty.style.display = 'none';
+    return;
+  }
+  noDate.style.display = 'none';
+  addBar.style.display = 'flex';
 
-  const formatRecipe = async () => {
-    if (!form.recipe.trim()) return;
-    setFormatLoad(true);
-    setAiDraft("");
-    try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "anthropic-dangerous-direct-browser-access": "true" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514", max_tokens: 1000,
-          messages: [{ role: "user", content: `以下のレシピテキストを整形してください。\n\nルール：\n- 「【材料】」セクションを先に書き、次に「【作り方】」セクションを書く\n- 材料は各行を「・食材名　分量」の形式にする（・の直後にスペースなし）\n- 作り方は「1.」「2.」などの番号付きステップにする\n- 各ステップは必ず主語を明記する。「ボウルに入れる」「2に加える」のような主語のない表現は禁止\n- ですます・丁寧語は使わず辞書形にする\n- 余計な説明文は付けず整形後のテキストのみ返す\n\n---\n${form.recipe}\n---` }],
-        }),
-      });
-      const d = await res.json();
-      const t = d.content?.map(c => c.text || "").join("").trim();
-      setAiDraft(t || "（整形に失敗しました）");
-    } catch { setAiDraft("（エラーが発生しました）"); }
-    setFormatLoad(false);
-  };
+  const items = state.items[curDate] || [];
+  list.innerHTML = '';
 
-  const applyDraft = () => { setForm(f => ({ ...f, recipe: aiDraft })); setAiDraft(null); };
-
-  const filtered = recipes.filter(r => {
-    if (filter === "fav" && !r.favorite) return false;
-    if (search && !r.name.toLowerCase().includes(search.toLowerCase())) return false;
-    return true;
-  });
-  const detail = recipes.find(r => r.id === detailId);
-
-  if (view === "list") return (
-    <>
-      <style>{css}</style>
-      <div style={{ ...F, minHeight:"100vh", background:"#FFF6F8" }}>
-        <div style={{ background:"linear-gradient(145deg,#FF8FAB 0%,#FFB8CC 45%,#FFD4A8 100%)", padding:"36px 20px 56px", position:"relative", overflow:"hidden" }}>
-          <div style={{ position:"absolute",top:-40,right:-40,width:160,height:160,background:"rgba(255,255,255,0.12)",borderRadius:"50%",pointerEvents:"none" }} />
-          <div style={{ position:"absolute",bottom:-30,left:-20,width:100,height:100,background:"rgba(255,255,255,0.09)",borderRadius:"50%",pointerEvents:"none" }} />
-          <div style={{ position:"relative",zIndex:1 }} className="float-in">
-            <div style={{ fontSize:10,fontWeight:800,color:"rgba(255,255,255,0.75)",letterSpacing:"0.15em",textTransform:"uppercase",marginBottom:6 }}>My Kitchen Diary</div>
-            <h1 style={{ fontSize:30,fontWeight:900,color:"#fff",lineHeight:1.15,marginBottom:6 }}>🍳 マイレシピ帳</h1>
-            <p style={{ fontSize:13,color:"rgba(255,255,255,0.88)",fontWeight:700 }}>
-              {recipes.length}品のレシピ
-              {recipes.filter(r=>r.favorite).length > 0 && <span style={{ marginLeft:8,background:"rgba(255,255,255,0.2)",borderRadius:99,padding:"2px 8px" }}>♥ {recipes.filter(r=>r.favorite).length}</span>}
-            </p>
-          </div>
-        </div>
-        <div style={{ padding:"0 16px",marginTop:-22,position:"relative",zIndex:10 }}>
-          <div style={{ background:"#fff",borderRadius:18,padding:"11px 16px",display:"flex",alignItems:"center",gap:10,boxShadow:"0 6px 24px rgba(255,100,140,0.14)" }}>
-            <span style={{ fontSize:17 }}>🔍</span>
-            <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="レシピを検索..." style={{ flex:1,border:"none",fontSize:14,fontWeight:700,color:"#4a3040",background:"transparent",...F }} />
-            {search && <button onClick={()=>setSearch("")} style={{ background:"none",border:"none",cursor:"pointer",color:"#ccc",fontSize:18,lineHeight:1,padding:0 }}>×</button>}
-          </div>
-        </div>
-        <div style={{ padding:"14px 16px 100px" }}>
-          <div style={{ display:"flex",gap:8,marginBottom:18 }}>
-            {[["all","すべて 🍽"],["fav","♥ お気に入り"]].map(([val,label]) => (
-              <button key={val} className="btn-s tp" onClick={()=>setFilter(val)}
-                style={{ padding:"7px 16px",borderRadius:99,border:"2px solid",borderColor:filter===val?"#FF8FAB":"#f0d8e0",background:filter===val?"#FF8FAB":"#fff",color:filter===val?"#fff":"#c08090",fontSize:12,fontWeight:800,...F }}>
-                {label}
-              </button>
-            ))}
-          </div>
-          {filtered.length === 0 ? (
-            <div className="fade-up" style={{ textAlign:"center",padding:"60px 20px" }}>
-              <div style={{ fontSize:52,marginBottom:14 }}>🥣</div>
-              <div style={{ fontWeight:800,fontSize:15,color:"#d4a0b0" }}>{filter==="fav" ? "お気に入りはまだありません" : "レシピを追加してみよう！"}</div>
-            </div>
-          ) : (
-            <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr",gap:12 }}>
-              {filtered.map((r, i) => {
-                const { bg, accent } = cardColor(r.id);
-                return (
-                  <div key={r.id} className="card-item fade-up"
-                    style={{ background:bg,borderRadius:20,border:`2px solid ${accent}55`,padding:"15px 13px 12px",cursor:"pointer",boxShadow:`0 3px 12px ${accent}28`,animationDelay:`${Math.min(i*0.05,0.4)}s`,position:"relative",minHeight:140,display:"flex",flexDirection:"column" }}
-                    onClick={()=>openDetail(r.id)}>
-                    <button onClick={e=>{e.stopPropagation();toggleFav(r.id);}} style={{ position:"absolute",top:10,right:10,background:"rgba(255,255,255,0.7)",border:"none",cursor:"pointer",padding:5,borderRadius:99 }}>
-                      <HeartIcon filled={r.favorite} />
-                    </button>
-                    <div style={{ width:46,height:46,borderRadius:14,background:`${accent}66`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:23,marginBottom:9,flexShrink:0 }}>{getEmoji(r.name)}</div>
-                    <div style={{ fontWeight:800,fontSize:13,color:"#3a2030",lineHeight:1.35,marginBottom:4,paddingRight:20,flex:1 }}>{r.name}</div>
-                    {r.oneliner && <div style={{ fontSize:10,color:"#987080",fontWeight:600,lineHeight:1.4,marginBottom:7 }}>{r.oneliner.length>28?r.oneliner.slice(0,28)+"…":r.oneliner}</div>}
-                    <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",marginTop:"auto" }}>
-                      <div style={{ fontSize:12,letterSpacing:2 }}>{[1,2,3].map(n=><span key={n} style={{color:n<=r.star?"#FFBB35":"#e8e0d8"}}>★</span>)}</div>
-                      {r.actualTime && <div style={{ fontSize:10,fontWeight:800,color:"#987080",background:`${accent}55`,borderRadius:99,padding:"3px 8px" }}>⏱ {r.actualTime}分</div>}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-        <button className="btn-s" onClick={()=>{ setForm(blank); setEditId(null); setView("form"); }}
-          style={{ position:"fixed",bottom:24,right:20,width:60,height:60,borderRadius:"50%",background:"linear-gradient(135deg,#FF8FAB,#FF5C92)",color:"#fff",border:"none",fontSize:28,fontWeight:900,boxShadow:"0 6px 24px rgba(255,92,146,0.5)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:100,...F }}>+</button>
-      </div>
-    </>
-  );
-
-  if (view === "form") return (
-    <>
-      <style>{css}</style>
-      <div style={{ ...F,minHeight:"100vh",background:"#FFF6F8" }}>
-        <div style={{ background:"linear-gradient(135deg,#FF8FAB,#FFB3CB)",padding:"14px 20px 16px",display:"flex",alignItems:"center",gap:12 }}>
-          <button onClick={goList} style={{ background:"rgba(255,255,255,0.3)",border:"none",borderRadius:99,width:34,height:34,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",color:"#fff",fontSize:16,fontWeight:700,...F }}>←</button>
-          <div style={{ fontSize:17,fontWeight:900,color:"#fff" }}>{editId ? "✏️ レシピを編集" : "✨ 新しいレシピ"}</div>
-        </div>
-        <div style={{ padding:"18px 16px 80px" }}>
-          <div style={{ background:"#fff",borderRadius:20,padding:"18px 16px",boxShadow:"0 4px 16px rgba(255,100,140,0.08)",marginBottom:12 }}>
-            <FormField label="料理名 *" value={form.name} onChange={upd("name")} placeholder="例: チキンカレー" />
-            <div style={{ marginBottom:16 }}>
-              <label style={labelStyle}>レシピ・作り方</label>
-              <textarea value={form.recipe} onChange={upd("recipe")} placeholder={"材料や手順を自由に貼り付けてください…\n（バラバラでもAIが整えます！）"} rows={7} style={{ ...inputBase, resize:"vertical" }} />
-              <button className="btn-s" onClick={formatRecipe} disabled={formatLoad}
-                style={{ marginTop:8,width:"100%",borderRadius:13,border:"2px dashed #FFB3CB",background:formatLoad?"#fffafc":"linear-gradient(135deg,#fff5f8,#fffaf0)",color:"#FF8FAB",padding:"10px 14px",fontSize:12,fontWeight:800,cursor:formatLoad?"not-allowed":"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:6,...F }}>
-                <span style={{ fontSize:15 }}>🪄</span>{formatLoad ? "AIが整形中…✨" : "貼り付けたテキストを「材料 → 作り方」に整理する"}
-              </button>
-              {aiDraft !== null && (
-                <div style={{ marginTop:12,borderRadius:14,border:"2px solid #FF8FAB",background:"#fff8fb",overflow:"hidden" }}>
-                  <div style={{ background:"linear-gradient(135deg,#FF8FAB,#FF6B9D)",padding:"8px 12px",display:"flex",alignItems:"center",justifyContent:"space-between" }}>
-                    <span style={{ color:"#fff",fontSize:11,fontWeight:800 }}>{formatLoad ? "🪄 AIが整形中…" : "✨ AI整形結果 — 自由に編集できます"}</span>
-                    <button onClick={()=>setAiDraft(null)} style={{ background:"rgba(255,255,255,0.25)",border:"none",borderRadius:99,color:"#fff",fontSize:12,fontWeight:700,padding:"2px 8px",cursor:"pointer",...F }}>✕ 破棄</button>
-                  </div>
-                  <div style={{ padding:"10px 12px" }}>
-                    {formatLoad ? (
-                      <div style={{ textAlign:"center",padding:"20px",color:"#FF8FAB",fontSize:13,fontWeight:700 }}><div style={{ fontSize:24,marginBottom:8 }}>✨</div>整形中です…しばらくお待ちください</div>
-                    ) : (
-                      <>
-                        <textarea value={aiDraft} onChange={e=>setAiDraft(e.target.value)} rows={10} style={{ ...inputBase,borderRadius:10,border:"1.5px solid #f0d8e0",resize:"vertical" }} />
-                        <button className="btn-s" onClick={applyDraft} style={{ marginTop:8,width:"100%",borderRadius:11,border:"none",background:"linear-gradient(135deg,#FF8FAB,#FF5C92)",color:"#fff",padding:"10px",fontSize:13,fontWeight:800,cursor:"pointer",boxShadow:"0 3px 10px rgba(255,92,146,0.3)",...F }}>✅ これをレシピに反映する</button>
-                      </>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-            <FormField label="実際の時間（分）" value={form.actualTime} onChange={upd("actualTime")} placeholder="45" />
-            <FormField label="参考URL" value={form.url} onChange={upd("url")} placeholder="https://..." />
-          </div>
-          <div style={{ background:"#fff",borderRadius:20,padding:"18px 16px",boxShadow:"0 4px 16px rgba(255,100,140,0.08)",marginBottom:12 }}>
-            <div style={{ fontSize:13,fontWeight:800,color:"#c08090",marginBottom:14 }}>⭐ 評価</div>
-            <label style={labelStyle}>★ 評価</label>
-            <div style={{ display:"flex",gap:4,alignItems:"center",marginBottom:16 }}>
-              {[1,2,3].map(i => (<button key={i} className="star-btn" onClick={()=>setForm(f=>({...f,star:f.star===i?0:i}))} style={{ fontSize:30,background:"none",border:"none",cursor:"pointer",lineHeight:1,color:i<=form.star?"#FFBB35":"#e8e0d8" }}>★</button>))}
-              <span style={{ fontSize:12,fontWeight:800,color:"#FF8FAB",marginLeft:6 }}>{RATING_LABEL[form.star]||""}</span>
-            </div>
-            <label style={labelStyle}>評価ポイント</label>
-            <div style={{ display:"flex",flexWrap:"wrap",gap:6,marginBottom:16 }}>
-              {EVAL_TAGS.map(t => {
-                const active = form.evalTags?.includes(t);
-                return (<button key={t} className="tp btn-s" onClick={()=>setForm(f=>({...f,evalTags:active?f.evalTags.filter(x=>x!==t):[...(f.evalTags||[]),t]}))} style={{ padding:"6px 13px",borderRadius:99,border:"2px solid",borderColor:active?"#FF8FAB":"#f0d8e0",background:active?"#FF8FAB":"#fff",color:active?"#fff":"#c08090",fontSize:12,fontWeight:800,...F }}>{t}</button>);
-              })}
-            </div>
-            <FormField label="改善点メモ" value={form.improvement} onChange={upd("improvement")} placeholder="次はここを変えてみたい…" multi rows={2} />
-          </div>
-          <div style={{ background:"#fff",borderRadius:20,padding:"18px 16px",boxShadow:"0 4px 16px rgba(255,100,140,0.08)",marginBottom:20 }}>
-            <div style={{ fontSize:13,fontWeight:800,color:"#c08090",marginBottom:4 }}>⚡ 1行レシピ</div>
-            <div style={{ fontSize:11,color:"#c0a0b0",fontWeight:600,marginBottom:10 }}>超短縮バージョンを自由に書いてね</div>
-            <textarea value={form.oneliner} onChange={upd("oneliner")} placeholder="🥘 玉ねぎ炒めてカレー粉入れて煮込むだけ！" rows={2} style={{ ...inputBase,resize:"vertical" }} />
-          </div>
-          <button className="btn-s" onClick={save} style={{ width:"100%",borderRadius:16,border:"none",background:"linear-gradient(135deg,#FF8FAB,#FF5C92)",color:"#fff",padding:"15px",fontSize:15,fontWeight:900,cursor:"pointer",marginBottom:10,boxShadow:"0 5px 18px rgba(255,92,146,0.35)",...F }}>{editId ? "更新する 💾" : "保存する 🎉"}</button>
-          <button className="btn-s" onClick={goList} style={{ width:"100%",borderRadius:16,border:"2px solid #f0d8e0",background:"#fff",color:"#c0a0a8",padding:"13px",fontSize:13,fontWeight:700,cursor:"pointer",...F }}>キャンセル</button>
-        </div>
-      </div>
-    </>
-  );
-
-  if (view === "detail" && detail) {
-    const { accent } = cardColor(detail.id);
-    return (
-      <>
-        <style>{css}</style>
-        <div style={{ ...F,minHeight:"100vh",background:"#FFF6F8" }}>
-          <div style={{ background:`linear-gradient(145deg,${accent}bb,${accent}66)`,padding:"18px 20px 30px" }}>
-            <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:18 }}>
-              <button onClick={goList} style={{ background:"rgba(255,255,255,0.5)",border:"none",borderRadius:99,width:34,height:34,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:16,fontWeight:700,...F }}>←</button>
-              <div style={{ display:"flex",gap:8 }}>
-                <button className="btn-s" onClick={()=>startEdit(detail)} style={{ background:"rgba(255,255,255,0.6)",border:"none",borderRadius:99,padding:"7px 14px",fontSize:12,fontWeight:800,cursor:"pointer",...F }}>✏️ 編集</button>
-                <button onClick={()=>toggleFav(detail.id)} style={{ background:"rgba(255,255,255,0.6)",border:"none",borderRadius:99,width:34,height:34,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer" }}><HeartIcon filled={detail.favorite} /></button>
-              </div>
-            </div>
-            <div style={{ fontSize:52,marginBottom:10 }}>{getEmoji(detail.name)}</div>
-            <div style={{ fontSize:23,fontWeight:900,color:"#3a2030",lineHeight:1.2 }}>{detail.name}</div>
-            {detail.oneliner && <div style={{ fontSize:12,color:"#7a5060",fontWeight:700,marginTop:7,background:"rgba(255,255,255,0.45)",display:"inline-block",borderRadius:8,padding:"3px 8px" }}>{detail.oneliner}</div>}
-          </div>
-          <div style={{ padding:"14px 16px 80px" }}>
-            <Section label="評価">
-              <div style={{ display:"flex",alignItems:"center",gap:10,marginBottom:detail.evalTags?.length>0?10:0 }}>
-                <div style={{ fontSize:20,letterSpacing:2 }}>{[1,2,3].map(n=><span key={n} style={{color:n<=detail.star?"#FFBB35":"#e8e0d8"}}>★</span>)}</div>
-                <div style={{ fontSize:12,fontWeight:800,color:"#FF8FAB" }}>{RATING_LABEL[detail.star]||"未評価"}</div>
-              </div>
-              {detail.evalTags?.length > 0 && <div style={{ display:"flex",flexWrap:"wrap",gap:6 }}>{detail.evalTags.map(t=><span key={t} style={{ padding:"4px 10px",borderRadius:99,background:`${accent}55`,color:"#3a2030",fontSize:11,fontWeight:800 }}>{t}</span>)}</div>}
-            </Section>
-            {detail.actualTime && <Section label="⏱ 実際にかかった時間"><div style={{ fontSize:24,fontWeight:900,color:"#3a2030" }}>{detail.actualTime}<span style={{ fontSize:12,color:"#c08090" }}>分</span></div></Section>}
-            {detail.recipe && (
-              <Section label="📋 レシピ・作り方">
-                <div style={{ fontSize:13,color:"#3a2030",lineHeight:1.9,fontWeight:600,fontFamily:"'Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif" }}>
-                  {detail.recipe.split("\n").map((line, i) => {
-                    if (line.startsWith("・")) {
-                      const content = line.slice(1);
-                      const sep = content.includes("\t") ? "\t" : content.match(/　+/) ? "　" : null;
-                      if (sep) {
-                        const idx = content.indexOf(sep);
-                        return (<div key={i} style={{ display:"flex",justifyContent:"space-between",alignItems:"baseline",paddingLeft:2 }}><span>・{content.slice(0,idx).trim()}</span><span style={{ color:"#987080",fontWeight:700,marginLeft:12,whiteSpace:"nowrap" }}>{content.slice(idx).trim()}</span></div>);
-                      }
-                    }
-                    return <div key={i} style={{ whiteSpace:"pre-wrap" }}>{line || "\u00A0"}</div>;
-                  })}
-                </div>
-              </Section>
-            )}
-            {detail.improvement && <Section label="🔧 改善点"><div style={{ fontSize:13,color:"#3a2030",lineHeight:1.6,fontWeight:600 }}>{detail.improvement}</div></Section>}
-            {detail.url && <Section label="🔗 参考URL"><a href={detail.url} target="_blank" rel="noreferrer" style={{ fontSize:12,color:"#FF8FAB",fontWeight:800,wordBreak:"break-all",textDecoration:"none" }}>{detail.url}</a></Section>}
-            <button className="btn-s" onClick={()=>{ if(window.confirm("本当に削除しますか？")) del(detail.id); }} style={{ width:"100%",borderRadius:16,border:"2px solid #ffc0c8",background:"#fff5f7",color:"#FF8090",padding:"13px",fontSize:13,fontWeight:800,cursor:"pointer",...F }}>🗑 削除する</button>
-          </div>
-        </div>
-      </>
-    );
+  if (items.length === 0) {
+    list.style.display = 'none';
+    empty.style.display = 'block';
+  } else {
+    list.style.display = 'flex';
+    empty.style.display = 'none';
   }
 
-  return null;
+  items.forEach((it, idx) => {
+    const row = document.createElement('div');
+    row.className = 'item-row' + (it.done ? ' completed' : '');
+    row.draggable = true;
+    row.innerHTML = `
+      <div class="i-strip" data-c="${it.color}"></div>
+      <div class="i-drag">⠿</div>
+      <div class="i-time">${it.time ? it.time.slice(0,5) : '──:──'}</div>
+      <div class="i-sep"></div>
+      <div class="i-name">${esc(it.name)}</div>
+      <div class="i-pin">${hasDet(it) ? '📎' : ''}</div>
+      <div class="i-chk${it.done ? ' done' : ''}" data-id="${it.id}"></div>
+    `;
+    row.addEventListener('click', e => {
+      if (e.target.closest('.i-chk') || e.target.closest('.i-drag')) return;
+      openModal(it.id);
+    });
+    row.querySelector('.i-chk').addEventListener('click', e => {
+      e.stopPropagation();
+      const x = (state.items[curDate]||[]).find(v => v.id == e.currentTarget.dataset.id);
+      if (x) { x.done = !x.done; save(); renderItems(); }
+    });
+    row.addEventListener('dragstart', e => { dragSrc=idx; row.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; });
+    row.addEventListener('dragend', () => { row.classList.remove('dragging'); document.querySelectorAll('.item-row').forEach(r=>r.classList.remove('drag-over')); });
+    row.addEventListener('dragover', e => { e.preventDefault(); document.querySelectorAll('.item-row').forEach(r=>r.classList.remove('drag-over')); row.classList.add('drag-over'); });
+    row.addEventListener('drop', e => {
+      e.preventDefault();
+      if (dragSrc===null || dragSrc===idx) return;
+      const arr = state.items[curDate];
+      const m = arr.splice(dragSrc,1)[0]; arr.splice(idx,0,m);
+      dragSrc=null; save(); renderItems();
+    });
+    list.appendChild(row);
+  });
 }
+
+// ━━ ADD ITEM ━━
+document.getElementById('colorPicker').addEventListener('click', e => {
+  const d = e.target.closest('.cdot'); if (!d) return;
+  document.querySelectorAll('#colorPicker .cdot').forEach(x=>x.classList.remove('sel'));
+  d.classList.add('sel'); selC = +d.dataset.c;
+});
+function addItem() {
+  if (!curDate) return;
+  const nm = document.getElementById('addName').value.trim(); if (!nm) { document.getElementById('addName').focus(); return; }
+  if (!state.items[curDate]) state.items[curDate] = [];
+  state.items[curDate].push({ id: Date.now(), name: nm, time: document.getElementById('addTime').value, color: selC, done: false, memo: '', urls: [], images: [] });
+  save(); renderItems();
+  document.getElementById('addName').value = ''; document.getElementById('addTime').value = '';
+  document.getElementById('addName').focus();
+}
+document.getElementById('addBtn').addEventListener('click', addItem);
+document.getElementById('addName').addEventListener('keydown', e => { if (e.key==='Enter') addItem(); });
+
+// ━━ MODAL ━━
+function openModal(id) {
+  curId = id;
+  const it = (state.items[curDate]||[]).find(x=>x.id===id); if (!it) return;
+  document.getElementById('mTitle').textContent = it.name;
+  document.getElementById('mTime').value = it.time || '';
+  document.getElementById('mMemo').value = it.memo || '';
+  document.getElementById('mStripe').dataset.c = it.color;
+  document.querySelectorAll('#mColors .mcd').forEach(d=>d.classList.toggle('sel',+d.dataset.c===it.color));
+  renderUrls(it); renderImgs(it);
+  document.getElementById('mUrlIn').value = '';
+  document.getElementById('overlay').classList.add('open');
+}
+function closeModal() {
+  if (curId && curDate) {
+    const it = (state.items[curDate]||[]).find(x=>x.id===curId);
+    if (it) { it.memo = document.getElementById('mMemo').value; it.time = document.getElementById('mTime').value; }
+    save(); renderItems();
+  }
+  curId = null; document.getElementById('overlay').classList.remove('open');
+}
+document.getElementById('mClose').addEventListener('click', closeModal);
+document.getElementById('overlay').addEventListener('click', e => { if (e.target===document.getElementById('overlay')) closeModal(); });
+document.getElementById('mColors').addEventListener('click', e => {
+  const d = e.target.closest('.mcd'); if (!d||!curId||!curDate) return;
+  const it = (state.items[curDate]||[]).find(x=>x.id===curId); if (!it) return;
+  it.color = +d.dataset.c;
+  document.querySelectorAll('#mColors .mcd').forEach(x=>x.classList.remove('sel')); d.classList.add('sel');
+  document.getElementById('mStripe').dataset.c = it.color; save();
+});
+document.getElementById('mTime').addEventListener('change', () => {
+  if (!curId||!curDate) return;
+  const it = (state.items[curDate]||[]).find(x=>x.id===curId);
+  if (it) { it.time = document.getElementById('mTime').value; save(); }
+});
+document.getElementById('mDel').addEventListener('click', () => {
+  if (!curId||!curDate||!confirm('この項目を削除しますか？')) return;
+  state.items[curDate] = (state.items[curDate]||[]).filter(x=>x.id!==curId);
+  save(); closeModal(); renderItems();
+});
+
+// URLs
+function renderUrls(it) {
+  const ul = document.getElementById('urlList'); ul.innerHTML = '';
+  (it.urls||[]).forEach((url,i)=>{
+    const c = document.createElement('div'); c.className='url-chip';
+    c.innerHTML=`<span>🔗</span><a href="${esc(url)}" target="_blank" rel="noopener">${esc(url)}</a><button class="url-del" data-i="${i}">✕</button>`;
+    c.querySelector('.url-del').addEventListener('click',()=>{ it.urls.splice(i,1); save(); renderUrls(it); renderItems(); });
+    ul.appendChild(c);
+  });
+}
+document.getElementById('urlAdd').addEventListener('click', () => {
+  if (!curId||!curDate) return;
+  const inp = document.getElementById('mUrlIn'); const url = inp.value.trim(); if (!url) return;
+  const it = (state.items[curDate]||[]).find(x=>x.id===curId); if (!it) return;
+  if (!it.urls) it.urls=[];
+  it.urls.push(url); save(); renderUrls(it); renderItems(); inp.value='';
+});
+document.getElementById('mUrlIn').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('urlAdd').click(); });
+
+// Images
+document.getElementById('imgDrop').addEventListener('click', ()=>document.getElementById('imgFile').click());
+document.getElementById('imgFile').addEventListener('change', e=>{
+  if (!curId||!curDate) return;
+  const it = (state.items[curDate]||[]).find(x=>x.id===curId); if (!it) return;
+  if (!it.images) it.images=[];
+  const files=Array.from(e.target.files); let p=files.length;
+  files.forEach(f=>{ const r=new FileReader(); r.onload=ev=>{ it.images.push(ev.target.result); if(--p===0){save();renderImgs(it);renderItems();} }; r.readAsDataURL(f); });
+  e.target.value='';
+});
+function renderImgs(it) {
+  const g = document.getElementById('imgGrid'); g.innerHTML='';
+  (it.images||[]).forEach((src,i)=>{
+    const w=document.createElement('div'); w.className='img-wrap';
+    w.innerHTML=`<img src="${src}" alt=""><button class="img-del" data-i="${i}">✕</button>`;
+    w.querySelector('.img-del').addEventListener('click',()=>{ it.images.splice(i,1); save(); renderImgs(it); renderItems(); });
+    g.appendChild(w);
+  });
+}
+
+// ━━ INIT ━━
+renderDateBar();
+renderItems();
+</script>
+
+</body>
+</html>
