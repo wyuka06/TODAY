@@ -21,8 +21,9 @@ body{font-family:'Zen Maru Gothic',sans-serif;background:var(--sky-pale);color:v
 background:linear-gradient(160deg,#52C8E0 0%,#3AAFC9 55%,#2A9AB5 100%);
 position:sticky;top:0;z-index:100;
 box-shadow:0 3px 20px rgba(28,58,74,.2);
+position:sticky; /* keep sticky */
 }
-.header-inner{display:flex;align-items:center;padding:12px 18px 10px;gap:10px;}
+.header-inner{display:flex;align-items:center;padding:14px 18px 10px;gap:10px;min-height:62px;}
 
 /* TODAY white outline italic */
 .logo-wrap{position:relative;display:inline-block;line-height:1;}
@@ -51,6 +52,14 @@ min-width:0;
 /* wave */
 .header-wave{display:block;overflow:hidden;line-height:0;height:18px;}
 .header-wave svg{display:block;width:100%;height:100%;}
+
+/* birds */
+.birds-wrap{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+.bird{position:absolute;opacity:.88;}
+@keyframes float1{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-5px) rotate(2deg)}}
+@keyframes float2{0%,100%{transform:translateY(0) rotate(2deg)}50%{transform:translateY(-7px) rotate(-2deg)}}
+.bird:nth-child(1){animation:float1 3.2s ease-in-out infinite;}
+.bird:nth-child(2){animation:float2 2.7s ease-in-out infinite;}
 
 /* ━━ DATE TABS ━━ */
 .date-bar-wrap{
@@ -121,23 +130,31 @@ transition:background .15s;
 
 /* ━━ ITEMS ━━ */
 .items-list{display:flex;flex-direction:column;gap:8px;}
-.item-row{background:var(–white);border:1.5px solid var(–border);border-radius:13px;display:flex;align-items:center;overflow:hidden;cursor:pointer;transition:box-shadow .15s,transform .12s;user-select:none;}
+.item-row{background:var(–white);border:1.5px solid var(–border);border-radius:13px;display:flex;align-items:center;overflow:hidden;cursor:pointer;transition:box-shadow .15s,transform .12s;}
 .item-row:hover{box-shadow:0 4px 16px rgba(91,196,220,.22);transform:translateY(-1px);}
 .item-row.completed{opacity:.6;}
-.item-row.dragging{opacity:.38;transform:scale(.97);}
-.item-row.drag-over{border-color:var(–sky);box-shadow:0 0 0 2px var(–sky-light);}
-.i-strip{width:5px;align-self:stretch;}
+.item-row.dragging{opacity:.45;transform:scale(.97);box-shadow:0 8px 24px rgba(28,58,74,.18);}
+.item-row.drag-over{border-color:var(–sky);box-shadow:0 0 0 2.5px var(–sky-light);}
+.i-strip{width:5px;align-self:stretch;flex-shrink:0;}
 .i-strip[data-c=“1”]{background:var(–c1)}.i-strip[data-c=“2”]{background:var(–c2)}.i-strip[data-c=“3”]{background:var(–c3)}.i-strip[data-c=“4”]{background:var(–c4)}.i-strip[data-c=“5”]{background:var(–c5)}
-.i-drag{padding:13px 7px 13px 10px;color:var(–ink-soft);font-size:12px;cursor:grab;line-height:1;}
-.i-drag:active{cursor:grabbing}
-.i-time{font-size:12px;color:var(–sky-deep);font-weight:700;padding:13px 8px 13px 2px;flex-shrink:0;white-space:nowrap;min-width:46px;letter-spacing:.02em;}
+/* ドラッグハンドル：三本線アイコン、ここだけ長押し有効 */
+.i-handle{
+width:36px;align-self:stretch;flex-shrink:0;
+display:flex;align-items:center;justify-content:center;
+cursor:grab;
+touch-action:none;
+user-select:none;
+-webkit-user-select:none;
+background:none;
+border:none;padding:0;
+}
+.i-handle:active{cursor:grabbing;}
+.i-handle svg{pointer-events:none;}
+.i-time{font-size:12px;color:var(–sky-deep);font-weight:700;padding:13px 6px 13px 2px;flex-shrink:0;white-space:nowrap;min-width:46px;letter-spacing:.02em;}
 .i-sep{width:1px;height:22px;background:var(–border);flex-shrink:0;}
 .i-name{flex:1;font-size:14px;font-weight:500;padding:13px 6px 13px 10px;color:var(–ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .item-row.completed .i-name{text-decoration:line-through;color:var(–ink-soft);}
-.i-pin{font-size:12px;padding:13px 8px 13px 2px;color:var(–ink-soft);flex-shrink:0;}
-.i-chk{width:22px;height:22px;border-radius:50%;border:1.5px solid var(–ink-soft);margin:13px 12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;cursor:pointer;}
-.i-chk.done{background:var(–sky-deep);border-color:var(–sky-deep);color:#fff;}
-.i-chk.done::after{content:‘✓’;font-size:12px;font-weight:700;}
+.i-pin{font-size:12px;padding:13px 10px 13px 2px;color:var(–ink-soft);flex-shrink:0;}
 
 .empty-state{text-align:center;padding:40px 20px;color:var(–ink-soft);}
 .empty-state .ei{font-size:38px;margin-bottom:10px;}
@@ -209,12 +226,65 @@ transition:background .15s;
 <!-- HEADER -->
 
 <header class="header">
-  <div class="header-inner">
+  <div class="header-inner" style="position:relative;">
     <div class="logo-wrap">
       <span class="lt-white">Today</span>
       <div class="logo-sub">旅のしおり ✈</div>
     </div>
     <input class="header-trip" id="tripTitle" placeholder="旅のタイトルを入力…" maxlength="40">
+
+```
+<!-- シマエナガ 2匹 -->
+<div class="birds-wrap">
+
+  <!-- シマエナガ① やや大きめ・右向き -->
+  <div class="bird" style="right:8px;top:-2px;">
+    <svg width="56" height="48" viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
+      <!-- しっぽ -->
+      <polygon points="60,120 10,150 70,135" fill="rgba(255,255,255,0.92)"/>
+      <!-- 体 -->
+      <ellipse cx="160" cy="115" rx="65" ry="55" fill="rgba(255,255,255,0.92)"/>
+      <!-- 頭 -->
+      <circle cx="210" cy="85" r="35" fill="rgba(255,255,255,0.92)"/>
+      <!-- くちばし -->
+      <polygon points="245,85 268,95 245,105" fill="rgba(180,225,240,0.9)"/>
+      <!-- 羽（上に羽ばたき） -->
+      <path d="M140,90 Q120,60 100,50 Q115,70 95,80 Q115,75 130,85 Q120,90 105,100 Q130,95 150,90 Q145,85 140,90 Z" fill="rgba(255,255,255,0.92)"/>
+      <!-- 足 -->
+      <ellipse cx="150" cy="162" rx="7" ry="4" fill="rgba(255,255,255,0.85)"/>
+      <ellipse cx="172" cy="162" rx="7" ry="4" fill="rgba(255,255,255,0.85)"/>
+      <!-- 目 -->
+      <circle cx="220" cy="80" r="7" fill="rgba(160,210,230,0.95)"/>
+      <!-- 目のハイライト -->
+      <circle cx="223" cy="77" r="2.5" fill="rgba(255,255,255,0.8)"/>
+    </svg>
+  </div>
+
+  <!-- シマエナガ② 小さめ・左右反転（左向き） -->
+  <div class="bird" style="right:76px;top:4px;">
+    <svg width="44" height="38" viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg" transform="scale(-1,1)" style="transform:scaleX(-1);">
+      <!-- しっぽ -->
+      <polygon points="60,120 10,150 70,135" fill="rgba(255,255,255,0.92)"/>
+      <!-- 体 -->
+      <ellipse cx="160" cy="115" rx="65" ry="55" fill="rgba(255,255,255,0.92)"/>
+      <!-- 頭 -->
+      <circle cx="210" cy="85" r="35" fill="rgba(255,255,255,0.92)"/>
+      <!-- くちばし -->
+      <polygon points="245,85 268,95 245,105" fill="rgba(180,225,240,0.9)"/>
+      <!-- 羽 -->
+      <path d="M140,90 Q120,60 100,50 Q115,70 95,80 Q115,75 130,85 Q120,90 105,100 Q130,95 150,90 Q145,85 140,90 Z" fill="rgba(255,255,255,0.92)"/>
+      <!-- 足 -->
+      <ellipse cx="150" cy="162" rx="7" ry="4" fill="rgba(255,255,255,0.85)"/>
+      <ellipse cx="172" cy="162" rx="7" ry="4" fill="rgba(255,255,255,0.85)"/>
+      <!-- 目 -->
+      <circle cx="220" cy="80" r="7" fill="rgba(160,210,230,0.95)"/>
+      <circle cx="223" cy="77" r="2.5" fill="rgba(255,255,255,0.8)"/>
+    </svg>
+  </div>
+
+</div><!-- /birds-wrap -->
+```
+
   </div>
   <div class="header-wave">
     <svg viewBox="0 0 400 18" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
@@ -237,7 +307,35 @@ transition:background .15s;
 <main class="main" id="mainArea">
   <!-- no date selected -->
   <div class="no-date" id="noDateMsg">
-    <div class="ei">📅</div>
+    <div class="ei">
+      <!-- 2匹並んで表示：左がピンク右向き、右が水色左向き -->
+      <svg width="160" height="80" viewBox="0 0 160 80" xmlns="http://www.w3.org/2000/svg">
+        <!-- ① ピンク・右向き -->
+        <g transform="translate(0,0) scale(0.25)">
+          <polygon points="60,120 10,150 70,135" fill="#FFD6E8"/>
+          <ellipse cx="160" cy="115" rx="65" ry="55" fill="#FFD6E8"/>
+          <circle cx="210" cy="85" r="35" fill="#FFD6E8"/>
+          <polygon points="245,85 268,95 245,105" fill="#F4A8C8"/>
+          <path d="M140,90 Q120,60 100,50 Q115,70 95,80 Q115,75 130,85 Q120,90 105,100 Q130,95 150,90 Q145,85 140,90 Z" fill="#FFD6E8"/>
+          <ellipse cx="150" cy="162" rx="7" ry="4" fill="#FFD6E8"/>
+          <ellipse cx="172" cy="162" rx="7" ry="4" fill="#FFD6E8"/>
+          <circle cx="220" cy="80" r="7" fill="#D4A0C0"/>
+          <circle cx="223" cy="77" r="2.5" fill="rgba(255,255,255,0.7)"/>
+        </g>
+        <!-- ② 水色・左向き（反転） -->
+        <g transform="translate(160,0) scale(-0.25,0.25)">
+          <polygon points="60,120 10,150 70,135" fill="#B8D8F0"/>
+          <ellipse cx="160" cy="115" rx="65" ry="55" fill="#B8D8F0"/>
+          <circle cx="210" cy="85" r="35" fill="#B8D8F0"/>
+          <polygon points="245,85 268,95 245,105" fill="#88B8D8"/>
+          <path d="M140,90 Q120,60 100,50 Q115,70 95,80 Q115,75 130,85 Q120,90 105,100 Q130,95 150,90 Q145,85 140,90 Z" fill="#B8D8F0"/>
+          <ellipse cx="150" cy="162" rx="7" ry="4" fill="#B8D8F0"/>
+          <ellipse cx="172" cy="162" rx="7" ry="4" fill="#B8D8F0"/>
+          <circle cx="220" cy="80" r="7" fill="#7AAAC0"/>
+          <circle cx="223" cy="77" r="2.5" fill="rgba(255,255,255,0.7)"/>
+        </g>
+      </svg>
+    </div>
     <p>「＋」ボタンで日付を追加して<br>スケジュールを立てよう！</p>
   </div>
 
@@ -258,7 +356,34 @@ transition:background .15s;
 
   <div class="items-list" id="itemsList" style="display:none;"></div>
   <div class="empty-state" id="emptyState" style="display:none;">
-    <div class="ei">⛵</div>
+    <div class="ei">
+      <svg width="140" height="72" viewBox="0 0 140 72" xmlns="http://www.w3.org/2000/svg">
+        <!-- ① ピンク・右向き -->
+        <g transform="translate(0,0) scale(0.22)">
+          <polygon points="60,120 10,150 70,135" fill="#FFD6E8"/>
+          <ellipse cx="160" cy="115" rx="65" ry="55" fill="#FFD6E8"/>
+          <circle cx="210" cy="85" r="35" fill="#FFD6E8"/>
+          <polygon points="245,85 268,95 245,105" fill="#F4A8C8"/>
+          <path d="M140,90 Q120,60 100,50 Q115,70 95,80 Q115,75 130,85 Q120,90 105,100 Q130,95 150,90 Q145,85 140,90 Z" fill="#FFD6E8"/>
+          <ellipse cx="150" cy="162" rx="7" ry="4" fill="#FFD6E8"/>
+          <ellipse cx="172" cy="162" rx="7" ry="4" fill="#FFD6E8"/>
+          <circle cx="220" cy="80" r="7" fill="#D4A0C0"/>
+          <circle cx="223" cy="77" r="2.5" fill="rgba(255,255,255,0.7)"/>
+        </g>
+        <!-- ② 水色・左向き -->
+        <g transform="translate(140,0) scale(-0.22,0.22)">
+          <polygon points="60,120 10,150 70,135" fill="#B8D8F0"/>
+          <ellipse cx="160" cy="115" rx="65" ry="55" fill="#B8D8F0"/>
+          <circle cx="210" cy="85" r="35" fill="#B8D8F0"/>
+          <polygon points="245,85 268,95 245,105" fill="#88B8D8"/>
+          <path d="M140,90 Q120,60 100,50 Q115,70 95,80 Q115,75 130,85 Q120,90 105,100 Q130,95 150,90 Q145,85 140,90 Z" fill="#B8D8F0"/>
+          <ellipse cx="150" cy="162" rx="7" ry="4" fill="#B8D8F0"/>
+          <ellipse cx="172" cy="162" rx="7" ry="4" fill="#B8D8F0"/>
+          <circle cx="220" cy="80" r="7" fill="#7AAAC0"/>
+          <circle cx="223" cy="77" r="2.5" fill="rgba(255,255,255,0.7)"/>
+        </g>
+      </svg>
+    </div>
     <p>この日はまだ予定がありません<br>上から追加してみよう！</p>
   </div>
 </main>
@@ -326,7 +451,7 @@ let state = JSON.parse(localStorage.getItem('tabi4_state') || 'null') || {
   items: {}       // { "YYYY-MM-DD": [{id,name,time,color,done,memo,urls,images}] }
 };
 let curDate = state.dates[0] || null;
-let selC = 1, curId = null, dragSrc = null;
+let selC = 1, curId = null;
 
 function save() { localStorage.setItem('tabi4_state', JSON.stringify(state)); }
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -440,35 +565,95 @@ function renderItems() {
   items.forEach((it, idx) => {
     const row = document.createElement('div');
     row.className = 'item-row' + (it.done ? ' completed' : '');
-    row.draggable = true;
+    row.dataset.idx = idx;
     row.innerHTML = `
       <div class="i-strip" data-c="${it.color}"></div>
-      <div class="i-drag">⠿</div>
+      <button class="i-handle" title="長押しで並び替え" aria-label="並び替え">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="2"  width="10" height="2" rx="1" fill="#9ABDC8"/>
+          <rect x="2" y="6"  width="10" height="2" rx="1" fill="#9ABDC8"/>
+          <rect x="2" y="10" width="10" height="2" rx="1" fill="#9ABDC8"/>
+        </svg>
+      </button>
       <div class="i-time">${it.time ? it.time.slice(0,5) : '──:──'}</div>
       <div class="i-sep"></div>
       <div class="i-name">${esc(it.name)}</div>
       <div class="i-pin">${hasDet(it) ? '📎' : ''}</div>
-      <div class="i-chk${it.done ? ' done' : ''}" data-id="${it.id}"></div>
     `;
+
+    // ── 長押しドラッグ：ハンドルのみ起点 ──
+    const handle = row.querySelector('.i-handle');
+    let pressTimer = null;
+    let isDragging = false;
+    let dragSrcIdx = idx;
+
+    handle.addEventListener('pointerdown', e => {
+      e.preventDefault(); // テキスト選択を防ぐ
+      pressTimer = setTimeout(() => {
+        isDragging = true;
+        dragSrcIdx = parseInt(row.dataset.idx);
+        row.classList.add('dragging');
+        handle.setPointerCapture(e.pointerId);
+        if (navigator.vibrate) navigator.vibrate(25);
+      }, 300);
+    });
+
+    handle.addEventListener('pointermove', e => {
+      if (!isDragging) return;
+      e.preventDefault();
+
+      const allRows = [...document.querySelectorAll('.item-row')];
+      allRows.forEach(r => r.classList.remove('drag-over'));
+
+      const clientY = e.clientY;
+      const target = allRows.find(r => {
+        if (r === row) return false;
+        const rect = r.getBoundingClientRect();
+        return clientY >= rect.top && clientY <= rect.bottom;
+      });
+
+      if (target) {
+        target.classList.add('drag-over');
+        const toIdx = parseInt(target.dataset.idx);
+        if (toIdx !== dragSrcIdx) {
+          const parent = list;
+          const nodes = [...parent.querySelectorAll('.item-row')];
+          const fromNode = nodes[dragSrcIdx];
+          const toNode   = nodes[toIdx];
+          if (toIdx > dragSrcIdx) {
+            parent.insertBefore(fromNode, toNode.nextSibling);
+          } else {
+            parent.insertBefore(fromNode, toNode);
+          }
+          [...parent.querySelectorAll('.item-row')].forEach((r, i) => { r.dataset.idx = i; });
+          const arr = state.items[curDate];
+          const moved = arr.splice(dragSrcIdx, 1)[0];
+          arr.splice(toIdx, 0, moved);
+          dragSrcIdx = toIdx;
+          save();
+        }
+      }
+    });
+
+    const endDrag = () => {
+      clearTimeout(pressTimer);
+      if (isDragging) {
+        isDragging = false;
+        document.querySelectorAll('.item-row').forEach(r => r.classList.remove('dragging','drag-over'));
+        renderItems();
+      }
+    };
+
+    handle.addEventListener('pointerup',     endDrag);
+    handle.addEventListener('pointercancel', endDrag);
+
+    // 行クリック → モーダル（ハンドル以外）
     row.addEventListener('click', e => {
-      if (e.target.closest('.i-chk') || e.target.closest('.i-drag')) return;
+      if (e.target.closest('.i-handle')) return;
+      if (isDragging) return;
       openModal(it.id);
     });
-    row.querySelector('.i-chk').addEventListener('click', e => {
-      e.stopPropagation();
-      const x = (state.items[curDate]||[]).find(v => v.id == e.currentTarget.dataset.id);
-      if (x) { x.done = !x.done; save(); renderItems(); }
-    });
-    row.addEventListener('dragstart', e => { dragSrc=idx; row.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; });
-    row.addEventListener('dragend', () => { row.classList.remove('dragging'); document.querySelectorAll('.item-row').forEach(r=>r.classList.remove('drag-over')); });
-    row.addEventListener('dragover', e => { e.preventDefault(); document.querySelectorAll('.item-row').forEach(r=>r.classList.remove('drag-over')); row.classList.add('drag-over'); });
-    row.addEventListener('drop', e => {
-      e.preventDefault();
-      if (dragSrc===null || dragSrc===idx) return;
-      const arr = state.items[curDate];
-      const m = arr.splice(dragSrc,1)[0]; arr.splice(idx,0,m);
-      dragSrc=null; save(); renderItems();
-    });
+
     list.appendChild(row);
   });
 }
@@ -493,8 +678,8 @@ document.getElementById('addName').addEventListener('keydown', e => { if (e.key=
 
 // ━━ MODAL ━━
 function openModal(id) {
-  curId = id;
-  const it = (state.items[curDate]||[]).find(x=>x.id===id); if (!it) return;
+  curId = String(id);
+  const it = (state.items[curDate]||[]).find(x => String(x.id) === curId); if (!it) return;
   document.getElementById('mTitle').textContent = it.name;
   document.getElementById('mTime').value = it.time || '';
   document.getElementById('mMemo').value = it.memo || '';
@@ -506,7 +691,7 @@ function openModal(id) {
 }
 function closeModal() {
   if (curId && curDate) {
-    const it = (state.items[curDate]||[]).find(x=>x.id===curId);
+    const it = (state.items[curDate]||[]).find(x => String(x.id) === curId);
     if (it) { it.memo = document.getElementById('mMemo').value; it.time = document.getElementById('mTime').value; }
     save(); renderItems();
   }
@@ -516,20 +701,24 @@ document.getElementById('mClose').addEventListener('click', closeModal);
 document.getElementById('overlay').addEventListener('click', e => { if (e.target===document.getElementById('overlay')) closeModal(); });
 document.getElementById('mColors').addEventListener('click', e => {
   const d = e.target.closest('.mcd'); if (!d||!curId||!curDate) return;
-  const it = (state.items[curDate]||[]).find(x=>x.id===curId); if (!it) return;
+  const it = (state.items[curDate]||[]).find(x => String(x.id) === curId); if (!it) return;
   it.color = +d.dataset.c;
   document.querySelectorAll('#mColors .mcd').forEach(x=>x.classList.remove('sel')); d.classList.add('sel');
   document.getElementById('mStripe').dataset.c = it.color; save();
 });
 document.getElementById('mTime').addEventListener('change', () => {
   if (!curId||!curDate) return;
-  const it = (state.items[curDate]||[]).find(x=>x.id===curId);
+  const it = (state.items[curDate]||[]).find(x => String(x.id) === curId);
   if (it) { it.time = document.getElementById('mTime').value; save(); }
 });
 document.getElementById('mDel').addEventListener('click', () => {
-  if (!curId||!curDate||!confirm('この項目を削除しますか？')) return;
-  state.items[curDate] = (state.items[curDate]||[]).filter(x=>x.id!==curId);
-  save(); closeModal(); renderItems();
+  if (!curId || !curDate) return;
+  if (!confirm('この項目を削除しますか？')) return;
+  state.items[curDate] = (state.items[curDate]||[]).filter(x => String(x.id) !== curId);
+  save();
+  curId = null;
+  document.getElementById('overlay').classList.remove('open');
+  renderItems();
 });
 
 // URLs
@@ -545,7 +734,7 @@ function renderUrls(it) {
 document.getElementById('urlAdd').addEventListener('click', () => {
   if (!curId||!curDate) return;
   const inp = document.getElementById('mUrlIn'); const url = inp.value.trim(); if (!url) return;
-  const it = (state.items[curDate]||[]).find(x=>x.id===curId); if (!it) return;
+  const it = (state.items[curDate]||[]).find(x => String(x.id) === curId); if (!it) return;
   if (!it.urls) it.urls=[];
   it.urls.push(url); save(); renderUrls(it); renderItems(); inp.value='';
 });
@@ -555,7 +744,7 @@ document.getElementById('mUrlIn').addEventListener('keydown', e=>{ if(e.key==='E
 document.getElementById('imgDrop').addEventListener('click', ()=>document.getElementById('imgFile').click());
 document.getElementById('imgFile').addEventListener('change', e=>{
   if (!curId||!curDate) return;
-  const it = (state.items[curDate]||[]).find(x=>x.id===curId); if (!it) return;
+  const it = (state.items[curDate]||[]).find(x => String(x.id) === curId); if (!it) return;
   if (!it.images) it.images=[];
   const files=Array.from(e.target.files); let p=files.length;
   files.forEach(f=>{ const r=new FileReader(); r.onload=ev=>{ it.images.push(ev.target.result); if(--p===0){save();renderImgs(it);renderItems();} }; r.readAsDataURL(f); });
