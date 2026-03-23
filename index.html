@@ -4,103 +4,152 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Today ✈ 旅のしおり</title>
-
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,700;1,700&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-body{font-family:sans-serif;padding:20px;background:#f0f8fb;}
-.item-row{padding:10px;border:1px solid #ccc;margin-bottom:8px;background:#fff;border-radius:8px;}
-.item-row.dragging{opacity:.5;transform:scale(1.03);}
-.item-row.drag-over{border:2px solid #5BC4DC;}
+:root {
+  --sky:#5BC4DC; --sky-deep:#3AAFC9; --sky-light:#A8DFF0; --sky-pale:#E8F7FC;
+  --ink:#1C3A4A; --ink-mid:#4A7A8A; --ink-soft:#9ABDC8; --border:#D0EAF2;
+  --white:#FFFFFF;
+  --c1:#F4A0A0; --c2:#7DD4AC; --c3:#5BC4DC; --c4:#F7D080; --c5:#C5A8E0;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Zen Maru Gothic',sans-serif;background:var(--sky-pale);color:var(--ink);min-height:100vh;}
+
+.header{background:linear-gradient(160deg,#52C8E0 0%,#3AAFC9 55%,#2A9AB5 100%);position:sticky;top:0;z-index:100;box-shadow:0 3px 20px rgba(28,58,74,.2);}
+.header-inner{display:flex;align-items:center;padding:12px 18px 10px;gap:10px;}
+.logo-wrap{position:relative;display:inline-block;line-height:1;}
+.lt-white{font-family:'Libre Baskerville',serif;font-style:italic;font-weight:700;font-size:32px;letter-spacing:-0.5px;color:#fff;text-shadow:0 0 1px rgba(255,255,255,.6),1px 1px 3px rgba(28,58,74,.25);}
+.logo-sub{font-size:10px;color:rgba(255,255,255,.82);letter-spacing:.14em;text-transform:uppercase;margin-top:1px;}
+.header-trip{flex:1;font-size:14px;font-weight:700;color:rgba(255,255,255,.95);border:none;background:transparent;outline:none;}
+.header-trip::placeholder{color:rgba(255,255,255,.55);}
+
+.date-bar{display:flex;overflow-x:auto;padding:10px;}
+.date-tab{padding:8px 12px;border-radius:10px;border:1px solid #ddd;margin-right:6px;cursor:pointer;}
+.date-tab.active{background:#3AAFC9;color:#fff;}
+
+.main{padding:15px;}
+
+.add-bar{display:flex;gap:8px;margin-bottom:10px;}
+.add-name{flex:1;}
+.items-list{display:flex;flex-direction:column;gap:8px;}
+
+.item-row{display:flex;align-items:center;background:#fff;border:1px solid #ddd;border-radius:10px;padding:10px;cursor:pointer;user-select:none;}
+.item-row.dragging{opacity:.5;}
+.item-row.drag-over{border-color:#3AAFC9;}
+.i-name{flex:1;}
+.i-chk{width:20px;height:20px;border:1px solid #aaa;border-radius:50%;cursor:pointer;}
+.i-chk.done{background:#3AAFC9;}
+
 </style>
 </head>
-
 <body>
 
-<h2>旅のしおり（テスト版）</h2>
+<header class="header">
+  <div class="header-inner">
+    <div class="logo-wrap">
+      <span class="lt-white">Today</span>
+      <div class="logo-sub">旅のしおり ✈</div>
+    </div>
+    <input class="header-trip" id="tripTitle" placeholder="旅のタイトル">
+  </div>
+</header>
 
-<input id="name" placeholder="予定">
-<button onclick="addItem()">追加</button>
-
-<div id="itemsList"></div>
+<div class="main">
+  <div class="add-bar">
+    <input id="addName" class="add-name" placeholder="項目">
+    <button id="addBtn">＋</button>
+  </div>
+  <div id="itemsList" class="items-list"></div>
+</div>
 
 <script>
-let state = { items: [] };
-let dragSrc = null;
 
-function addItem(){
-  const name = document.getElementById('name').value;
-  if(!name) return;
-  state.items.push({id:Date.now(), name});
-  document.getElementById('name').value='';
-  render();
-}
+let state = JSON.parse(localStorage.getItem('app')||'{}');
+if(!state.items) state.items=[];
+
+let dragSrc=null;
+
+function save(){localStorage.setItem('app',JSON.stringify(state));}
 
 function render(){
   const list=document.getElementById('itemsList');
   list.innerHTML='';
+
   state.items.forEach((it,idx)=>{
     const row=document.createElement('div');
     row.className='item-row';
-    row.textContent=it.name;
-    row.draggable=true;
 
-    // PC
-    row.addEventListener('dragstart',()=>{dragSrc=idx;row.classList.add('dragging');});
-    row.addEventListener('dragend',()=>row.classList.remove('dragging'));
-    row.addEventListener('dragover',e=>e.preventDefault());
-    row.addEventListener('drop',()=>{
-      const arr=state.items;
-      const m=arr.splice(dragSrc,1)[0];
-      arr.splice(idx,0,m);
-      render();
-    });
+    row.innerHTML=`
+      <div class="i-name">${it}</div>
+      <div class="i-chk"></div>
+    `;
 
-    // 📱スマホ長押し
-    let timer; let dragging=false;
+    // ===== 長押しドラッグ =====
+    let pressTimer;
+    let isDragging=false;
 
-    row.addEventListener('touchstart',()=>{
-      timer=setTimeout(()=>{
-        dragging=true;
+    row.addEventListener('pointerdown',()=>{
+      pressTimer=setTimeout(()=>{
+        isDragging=true;
         dragSrc=idx;
         row.classList.add('dragging');
       },300);
     });
 
-    row.addEventListener('touchmove',e=>{
-      if(!dragging)return;
-      const t=e.touches[0];
-      const el=document.elementFromPoint(t.clientX,t.clientY);
-      const target=el?.closest('.item-row');
+    row.addEventListener('pointermove',(e)=>{
+      if(!isDragging)return;
+      e.preventDefault();
 
-      document.querySelectorAll('.item-row').forEach(r=>r.classList.remove('drag-over'));
-      if(target)target.classList.add('drag-over');
+      const y=e.clientY;
+      const rows=[...document.querySelectorAll('.item-row')];
+
+      rows.forEach((r,i)=>{
+        const rect=r.getBoundingClientRect();
+        if(y>rect.top&&y<rect.bottom){
+          rows.forEach(x=>x.classList.remove('drag-over'));
+          r.classList.add('drag-over');
+
+          if(i!==dragSrc){
+            const moved=state.items.splice(dragSrc,1)[0];
+            state.items.splice(i,0,moved);
+            dragSrc=i;
+            save();
+            render();
+          }
+        }
+      });
     });
 
-    row.addEventListener('touchend',e=>{
-      clearTimeout(timer);
-      if(!dragging)return;
-
-      const t=e.changedTouches[0];
-      const el=document.elementFromPoint(t.clientX,t.clientY);
-      const target=el?.closest('.item-row');
-
-      if(target){
-        const newIdx=[...target.parentNode.children].indexOf(target);
-        const arr=state.items;
-        const m=arr.splice(dragSrc,1)[0];
-        arr.splice(newIdx,0,m);
-        render();
+    row.addEventListener('pointerup',()=>{
+      clearTimeout(pressTimer);
+      if(isDragging){
+        isDragging=false;
+        dragSrc=null;
+        document.querySelectorAll('.item-row').forEach(r=>r.classList.remove('dragging','drag-over'));
       }
+    });
 
-      dragging=false;
+    row.addEventListener('pointercancel',()=>{
+      clearTimeout(pressTimer);
+      isDragging=false;
       dragSrc=null;
-      row.classList.remove('dragging');
     });
 
     list.appendChild(row);
   });
 }
 
+document.getElementById('addBtn').addEventListener('click',()=>{
+  const v=document.getElementById('addName').value.trim();
+  if(!v)return;
+  state.items.push(v);
+  document.getElementById('addName').value='';
+  save();
+  render();
+});
+
 render();
+
 </script>
 
 </body>
