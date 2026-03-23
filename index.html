@@ -1,156 +1,328 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Today ✈ 旅のしおり</title>
-<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,700;1,700&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
-<style>
-:root {
-  --sky:#5BC4DC; --sky-deep:#3AAFC9; --sky-light:#A8DFF0; --sky-pale:#E8F7FC;
-  --ink:#1C3A4A; --ink-mid:#4A7A8A; --ink-soft:#9ABDC8; --border:#D0EAF2;
-  --white:#FFFFFF;
-  --c1:#F4A0A0; --c2:#7DD4AC; --c3:#5BC4DC; --c4:#F7D080; --c5:#C5A8E0;
+import { useState, useEffect } from "react";
+
+const STORAGE_KEY = "recipe-app-v3";
+const F = { fontFamily:"'Nunito','Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif" };
+
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+
+const EVAL_TAGS = ["味","手間","コスパ","見た目","ヘルシー","時短"];
+const RATING_LABEL = ["","うーん…","また作る！","神レシピ✨"];
+const FOOD_EMOJIS = ["🍜","🍛","🍱","🥗","🍝","🥘","🍲","🥩","🍣","🍕","🥞","🍰","🥑","🍳","🫕"];
+const CARD_COLORS = [
+  { bg:"#FFF0F5", accent:"#FFB3CB" },
+  { bg:"#FFF8EC", accent:"#FFCF7F" },
+  { bg:"#F0FAF5", accent:"#91DDB8" },
+  { bg:"#F0F5FF", accent:"#A0B8FF" },
+  { bg:"#FDF0FF", accent:"#D4A0FF" },
+];
+
+function getEmoji(name) {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h);
+  return FOOD_EMOJIS[Math.abs(h) % FOOD_EMOJIS.length];
 }
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Zen Maru Gothic',sans-serif;background:var(--sky-pale);color:var(--ink);min-height:100vh;}
+function cardColor(id) {
+  return CARD_COLORS[parseInt(id, 36) % CARD_COLORS.length] || CARD_COLORS[0];
+}
 
-.header{background:linear-gradient(160deg,#52C8E0 0%,#3AAFC9 55%,#2A9AB5 100%);position:sticky;top:0;z-index:100;box-shadow:0 3px 20px rgba(28,58,74,.2);}
-.header-inner{display:flex;align-items:center;padding:12px 18px 10px;gap:10px;}
-.logo-wrap{position:relative;display:inline-block;line-height:1;}
-.lt-white{font-family:'Libre Baskerville',serif;font-style:italic;font-weight:700;font-size:32px;letter-spacing:-0.5px;color:#fff;text-shadow:0 0 1px rgba(255,255,255,.6),1px 1px 3px rgba(28,58,74,.25);}
-.logo-sub{font-size:10px;color:rgba(255,255,255,.82);letter-spacing:.14em;text-transform:uppercase;margin-top:1px;}
-.header-trip{flex:1;font-size:14px;font-weight:700;color:rgba(255,255,255,.95);border:none;background:transparent;outline:none;}
-.header-trip::placeholder{color:rgba(255,255,255,.55);}
+const HeartIcon = ({ filled }) => (
+  <svg width="16" height="16" viewBox="0 0 24 24"
+    fill={filled ? "#ff8fab" : "none"} stroke={filled ? "#ff8fab" : "#ccc"}
+    strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+  </svg>
+);
 
-.date-bar{display:flex;overflow-x:auto;padding:10px;}
-.date-tab{padding:8px 12px;border-radius:10px;border:1px solid #ddd;margin-right:6px;cursor:pointer;}
-.date-tab.active{background:#3AAFC9;color:#fff;}
+const labelStyle = { display:"block", fontSize:10, fontWeight:800, color:"#c08090", letterSpacing:"0.1em", marginBottom:5, textTransform:"uppercase" };
+const inputBase = { width:"100%", borderRadius:13, border:"2px solid #f0d8e0", padding:"10px 12px", fontSize:13, fontWeight:600, color:"#3a2030", background:"#fff", ...F, transition:"border-color .15s" };
 
-.main{padding:15px;}
-
-.add-bar{display:flex;gap:8px;margin-bottom:10px;}
-.add-name{flex:1;}
-.items-list{display:flex;flex-direction:column;gap:8px;}
-
-.item-row{display:flex;align-items:center;background:#fff;border:1px solid #ddd;border-radius:10px;padding:10px;cursor:pointer;user-select:none;}
-.item-row.dragging{opacity:.5;}
-.item-row.drag-over{border-color:#3AAFC9;}
-.i-name{flex:1;}
-.i-chk{width:20px;height:20px;border:1px solid #aaa;border-radius:50%;cursor:pointer;}
-.i-chk.done{background:#3AAFC9;}
-
-</style>
-</head>
-<body>
-
-<header class="header">
-  <div class="header-inner">
-    <div class="logo-wrap">
-      <span class="lt-white">Today</span>
-      <div class="logo-sub">旅のしおり ✈</div>
-    </div>
-    <input class="header-trip" id="tripTitle" placeholder="旅のタイトル">
-  </div>
-</header>
-
-<div class="main">
-  <div class="add-bar">
-    <input id="addName" class="add-name" placeholder="項目">
-    <button id="addBtn">＋</button>
-  </div>
-  <div id="itemsList" class="items-list"></div>
-</div>
-
-<script>
-
-let state = JSON.parse(localStorage.getItem('app')||'{}');
-if(!state.items) state.items=[];
-
-let dragSrc=null;
-
-function save(){localStorage.setItem('app',JSON.stringify(state));}
-
-function render(){
-  const list=document.getElementById('itemsList');
-  list.innerHTML='';
-
-  state.items.forEach((it,idx)=>{
-    const row=document.createElement('div');
-    row.className='item-row';
-
-    row.innerHTML=`
-      <div class="i-name">${it}</div>
-      <div class="i-chk"></div>
-    `;
-
-    // ===== 長押しドラッグ =====
-    let pressTimer;
-    let isDragging=false;
-
-    row.addEventListener('pointerdown',()=>{
-      pressTimer=setTimeout(()=>{
-        isDragging=true;
-        dragSrc=idx;
-        row.classList.add('dragging');
-      },300);
-    });
-
-    row.addEventListener('pointermove',(e)=>{
-      if(!isDragging)return;
-      e.preventDefault();
-
-      const y=e.clientY;
-      const rows=[...document.querySelectorAll('.item-row')];
-
-      rows.forEach((r,i)=>{
-        const rect=r.getBoundingClientRect();
-        if(y>rect.top&&y<rect.bottom){
-          rows.forEach(x=>x.classList.remove('drag-over'));
-          r.classList.add('drag-over');
-
-          if(i!==dragSrc){
-            const moved=state.items.splice(dragSrc,1)[0];
-            state.items.splice(i,0,moved);
-            dragSrc=i;
-            save();
-            render();
-          }
-        }
-      });
-    });
-
-    row.addEventListener('pointerup',()=>{
-      clearTimeout(pressTimer);
-      if(isDragging){
-        isDragging=false;
-        dragSrc=null;
-        document.querySelectorAll('.item-row').forEach(r=>r.classList.remove('dragging','drag-over'));
+function FormField({ label, value, onChange, placeholder, multi=false, rows=3 }) {
+  return (
+    <div style={{ marginBottom:16 }}>
+      <label style={labelStyle}>{label}</label>
+      {multi
+        ? <textarea value={value} onChange={onChange} placeholder={placeholder} rows={rows} style={{ ...inputBase, resize:"vertical" }} />
+        : <input value={value} onChange={onChange} placeholder={placeholder} style={inputBase} />
       }
-    });
-
-    row.addEventListener('pointercancel',()=>{
-      clearTimeout(pressTimer);
-      isDragging=false;
-      dragSrc=null;
-    });
-
-    list.appendChild(row);
-  });
+    </div>
+  );
 }
 
-document.getElementById('addBtn').addEventListener('click',()=>{
-  const v=document.getElementById('addName').value.trim();
-  if(!v)return;
-  state.items.push(v);
-  document.getElementById('addName').value='';
-  save();
-  render();
-});
+function Section({ label, children }) {
+  return (
+    <div style={{ background:"#fff", borderRadius:16, padding:"14px 16px", marginBottom:10, boxShadow:"0 2px 10px rgba(255,100,140,0.07)" }}>
+      <div style={{ fontSize:10, fontWeight:800, color:"#c08090", letterSpacing:"0.1em", textTransform:"uppercase", marginBottom:7 }}>{label}</div>
+      {children}
+    </div>
+  );
+}
 
-render();
+const css = `
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  body { background:#FFF6F8; }
+  ::-webkit-scrollbar { width:4px; }
+  ::-webkit-scrollbar-thumb { background:#f0c0d0; border-radius:99px; }
+  @keyframes fadeUp  { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes floatIn { from{opacity:0;transform:scale(0.94)} to{opacity:1;transform:scale(1)} }
+  .card-item { transition:transform .18s, box-shadow .18s; }
+  .card-item:hover { transform:translateY(-3px); }
+  .btn-s { transition:transform .12s, filter .12s; cursor:pointer; }
+  .btn-s:hover { transform:scale(0.97); filter:brightness(0.96); }
+  .fade-up { animation:fadeUp .38s cubic-bezier(.22,.68,0,1.2) both; }
+  .float-in { animation:floatIn .3s ease both; }
+  .tp { transition:background .15s, color .15s, border-color .15s; }
+  input:focus, textarea:focus { border-color:#FF8FAB !important; outline:none; box-shadow:0 0 0 3px rgba(255,143,171,0.18); }
+  .star-btn { transition:transform .12s; }
+  .star-btn:hover { transform:scale(1.28); }
+`;
 
-</script>
+export default function App() {
+  const [recipes, setRecipes] = useState(() => {
+    try { const s = localStorage.getItem(STORAGE_KEY); return s ? JSON.parse(s) : []; } catch { return []; }
+  });
+  const [view, setView] = useState("list");
+  const [editId, setEditId] = useState(null);
+  const [detailId, setDetailId] = useState(null);
+  const [filter, setFilter] = useState("all");
+  const [search, setSearch] = useState("");
+  const [formatLoad, setFormatLoad] = useState(false);
+  const [aiDraft, setAiDraft] = useState(null);
 
-</body>
-</html>
+  const blank = { name:"", recipe:"", actualTime:"", url:"", star:0, evalTags:[], improvement:"", oneliner:"", favorite:false };
+  const [form, setForm] = useState(blank);
+
+  useEffect(() => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(recipes)); } catch {} }, [recipes]);
+
+  const upd = (key) => (e) => setForm(f => ({ ...f, [key]: e.target.value }));
+  const save = () => {
+    if (!form.name.trim()) return;
+    if (editId) setRecipes(r => r.map(x => x.id === editId ? { ...form, id: editId } : x));
+    else setRecipes(r => [{ ...form, id: genId(), createdAt: Date.now() }, ...r]);
+    setForm(blank); setEditId(null); setView("list");
+  };
+  const del = (id) => { setRecipes(r => r.filter(x => x.id !== id)); setView("list"); };
+  const toggleFav = (id) => setRecipes(r => r.map(x => x.id === id ? { ...x, favorite:!x.favorite } : x));
+  const startEdit = (rec) => { setForm({ ...blank, ...rec }); setEditId(rec.id); setView("form"); };
+  const openDetail = (id) => { setDetailId(id); setView("detail"); };
+  const goList = () => { setView("list"); setEditId(null); setForm(blank); };
+
+  const formatRecipe = async () => {
+    if (!form.recipe.trim()) return;
+    setFormatLoad(true);
+    setAiDraft("");
+    try {
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "anthropic-dangerous-direct-browser-access": "true" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514", max_tokens: 1000,
+          messages: [{ role: "user", content: `以下のレシピテキストを整形してください。\n\nルール：\n- 「【材料】」セクションを先に書き、次に「【作り方】」セクションを書く\n- 材料は各行を「・食材名　分量」の形式にする（・の直後にスペースなし）\n- 作り方は「1.」「2.」などの番号付きステップにする\n- 各ステップは必ず主語を明記する。「ボウルに入れる」「2に加える」のような主語のない表現は禁止\n- ですます・丁寧語は使わず辞書形にする\n- 余計な説明文は付けず整形後のテキストのみ返す\n\n---\n${form.recipe}\n---` }],
+        }),
+      });
+      const d = await res.json();
+      const t = d.content?.map(c => c.text || "").join("").trim();
+      setAiDraft(t || "（整形に失敗しました）");
+    } catch { setAiDraft("（エラーが発生しました）"); }
+    setFormatLoad(false);
+  };
+
+  const applyDraft = () => { setForm(f => ({ ...f, recipe: aiDraft })); setAiDraft(null); };
+
+  const filtered = recipes.filter(r => {
+    if (filter === "fav" && !r.favorite) return false;
+    if (search && !r.name.toLowerCase().includes(search.toLowerCase())) return false;
+    return true;
+  });
+  const detail = recipes.find(r => r.id === detailId);
+
+  if (view === "list") return (
+    <>
+      <style>{css}</style>
+      <div style={{ ...F, minHeight:"100vh", background:"#FFF6F8" }}>
+        <div style={{ background:"linear-gradient(145deg,#FF8FAB 0%,#FFB8CC 45%,#FFD4A8 100%)", padding:"36px 20px 56px", position:"relative", overflow:"hidden" }}>
+          <div style={{ position:"absolute",top:-40,right:-40,width:160,height:160,background:"rgba(255,255,255,0.12)",borderRadius:"50%",pointerEvents:"none" }} />
+          <div style={{ position:"absolute",bottom:-30,left:-20,width:100,height:100,background:"rgba(255,255,255,0.09)",borderRadius:"50%",pointerEvents:"none" }} />
+          <div style={{ position:"relative",zIndex:1 }} className="float-in">
+            <div style={{ fontSize:10,fontWeight:800,color:"rgba(255,255,255,0.75)",letterSpacing:"0.15em",textTransform:"uppercase",marginBottom:6 }}>My Kitchen Diary</div>
+            <h1 style={{ fontSize:30,fontWeight:900,color:"#fff",lineHeight:1.15,marginBottom:6 }}>🍳 マイレシピ帳</h1>
+            <p style={{ fontSize:13,color:"rgba(255,255,255,0.88)",fontWeight:700 }}>
+              {recipes.length}品のレシピ
+              {recipes.filter(r=>r.favorite).length > 0 && <span style={{ marginLeft:8,background:"rgba(255,255,255,0.2)",borderRadius:99,padding:"2px 8px" }}>♥ {recipes.filter(r=>r.favorite).length}</span>}
+            </p>
+          </div>
+        </div>
+        <div style={{ padding:"0 16px",marginTop:-22,position:"relative",zIndex:10 }}>
+          <div style={{ background:"#fff",borderRadius:18,padding:"11px 16px",display:"flex",alignItems:"center",gap:10,boxShadow:"0 6px 24px rgba(255,100,140,0.14)" }}>
+            <span style={{ fontSize:17 }}>🔍</span>
+            <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="レシピを検索..." style={{ flex:1,border:"none",fontSize:14,fontWeight:700,color:"#4a3040",background:"transparent",...F }} />
+            {search && <button onClick={()=>setSearch("")} style={{ background:"none",border:"none",cursor:"pointer",color:"#ccc",fontSize:18,lineHeight:1,padding:0 }}>×</button>}
+          </div>
+        </div>
+        <div style={{ padding:"14px 16px 100px" }}>
+          <div style={{ display:"flex",gap:8,marginBottom:18 }}>
+            {[["all","すべて 🍽"],["fav","♥ お気に入り"]].map(([val,label]) => (
+              <button key={val} className="btn-s tp" onClick={()=>setFilter(val)}
+                style={{ padding:"7px 16px",borderRadius:99,border:"2px solid",borderColor:filter===val?"#FF8FAB":"#f0d8e0",background:filter===val?"#FF8FAB":"#fff",color:filter===val?"#fff":"#c08090",fontSize:12,fontWeight:800,...F }}>
+                {label}
+              </button>
+            ))}
+          </div>
+          {filtered.length === 0 ? (
+            <div className="fade-up" style={{ textAlign:"center",padding:"60px 20px" }}>
+              <div style={{ fontSize:52,marginBottom:14 }}>🥣</div>
+              <div style={{ fontWeight:800,fontSize:15,color:"#d4a0b0" }}>{filter==="fav" ? "お気に入りはまだありません" : "レシピを追加してみよう！"}</div>
+            </div>
+          ) : (
+            <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr",gap:12 }}>
+              {filtered.map((r, i) => {
+                const { bg, accent } = cardColor(r.id);
+                return (
+                  <div key={r.id} className="card-item fade-up"
+                    style={{ background:bg,borderRadius:20,border:`2px solid ${accent}55`,padding:"15px 13px 12px",cursor:"pointer",boxShadow:`0 3px 12px ${accent}28`,animationDelay:`${Math.min(i*0.05,0.4)}s`,position:"relative",minHeight:140,display:"flex",flexDirection:"column" }}
+                    onClick={()=>openDetail(r.id)}>
+                    <button onClick={e=>{e.stopPropagation();toggleFav(r.id);}} style={{ position:"absolute",top:10,right:10,background:"rgba(255,255,255,0.7)",border:"none",cursor:"pointer",padding:5,borderRadius:99 }}>
+                      <HeartIcon filled={r.favorite} />
+                    </button>
+                    <div style={{ width:46,height:46,borderRadius:14,background:`${accent}66`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:23,marginBottom:9,flexShrink:0 }}>{getEmoji(r.name)}</div>
+                    <div style={{ fontWeight:800,fontSize:13,color:"#3a2030",lineHeight:1.35,marginBottom:4,paddingRight:20,flex:1 }}>{r.name}</div>
+                    {r.oneliner && <div style={{ fontSize:10,color:"#987080",fontWeight:600,lineHeight:1.4,marginBottom:7 }}>{r.oneliner.length>28?r.oneliner.slice(0,28)+"…":r.oneliner}</div>}
+                    <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",marginTop:"auto" }}>
+                      <div style={{ fontSize:12,letterSpacing:2 }}>{[1,2,3].map(n=><span key={n} style={{color:n<=r.star?"#FFBB35":"#e8e0d8"}}>★</span>)}</div>
+                      {r.actualTime && <div style={{ fontSize:10,fontWeight:800,color:"#987080",background:`${accent}55`,borderRadius:99,padding:"3px 8px" }}>⏱ {r.actualTime}分</div>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+        <button className="btn-s" onClick={()=>{ setForm(blank); setEditId(null); setView("form"); }}
+          style={{ position:"fixed",bottom:24,right:20,width:60,height:60,borderRadius:"50%",background:"linear-gradient(135deg,#FF8FAB,#FF5C92)",color:"#fff",border:"none",fontSize:28,fontWeight:900,boxShadow:"0 6px 24px rgba(255,92,146,0.5)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:100,...F }}>+</button>
+      </div>
+    </>
+  );
+
+  if (view === "form") return (
+    <>
+      <style>{css}</style>
+      <div style={{ ...F,minHeight:"100vh",background:"#FFF6F8" }}>
+        <div style={{ background:"linear-gradient(135deg,#FF8FAB,#FFB3CB)",padding:"14px 20px 16px",display:"flex",alignItems:"center",gap:12 }}>
+          <button onClick={goList} style={{ background:"rgba(255,255,255,0.3)",border:"none",borderRadius:99,width:34,height:34,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",color:"#fff",fontSize:16,fontWeight:700,...F }}>←</button>
+          <div style={{ fontSize:17,fontWeight:900,color:"#fff" }}>{editId ? "✏️ レシピを編集" : "✨ 新しいレシピ"}</div>
+        </div>
+        <div style={{ padding:"18px 16px 80px" }}>
+          <div style={{ background:"#fff",borderRadius:20,padding:"18px 16px",boxShadow:"0 4px 16px rgba(255,100,140,0.08)",marginBottom:12 }}>
+            <FormField label="料理名 *" value={form.name} onChange={upd("name")} placeholder="例: チキンカレー" />
+            <div style={{ marginBottom:16 }}>
+              <label style={labelStyle}>レシピ・作り方</label>
+              <textarea value={form.recipe} onChange={upd("recipe")} placeholder={"材料や手順を自由に貼り付けてください…\n（バラバラでもAIが整えます！）"} rows={7} style={{ ...inputBase, resize:"vertical" }} />
+              <button className="btn-s" onClick={formatRecipe} disabled={formatLoad}
+                style={{ marginTop:8,width:"100%",borderRadius:13,border:"2px dashed #FFB3CB",background:formatLoad?"#fffafc":"linear-gradient(135deg,#fff5f8,#fffaf0)",color:"#FF8FAB",padding:"10px 14px",fontSize:12,fontWeight:800,cursor:formatLoad?"not-allowed":"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:6,...F }}>
+                <span style={{ fontSize:15 }}>🪄</span>{formatLoad ? "AIが整形中…✨" : "貼り付けたテキストを「材料 → 作り方」に整理する"}
+              </button>
+              {aiDraft !== null && (
+                <div style={{ marginTop:12,borderRadius:14,border:"2px solid #FF8FAB",background:"#fff8fb",overflow:"hidden" }}>
+                  <div style={{ background:"linear-gradient(135deg,#FF8FAB,#FF6B9D)",padding:"8px 12px",display:"flex",alignItems:"center",justifyContent:"space-between" }}>
+                    <span style={{ color:"#fff",fontSize:11,fontWeight:800 }}>{formatLoad ? "🪄 AIが整形中…" : "✨ AI整形結果 — 自由に編集できます"}</span>
+                    <button onClick={()=>setAiDraft(null)} style={{ background:"rgba(255,255,255,0.25)",border:"none",borderRadius:99,color:"#fff",fontSize:12,fontWeight:700,padding:"2px 8px",cursor:"pointer",...F }}>✕ 破棄</button>
+                  </div>
+                  <div style={{ padding:"10px 12px" }}>
+                    {formatLoad ? (
+                      <div style={{ textAlign:"center",padding:"20px",color:"#FF8FAB",fontSize:13,fontWeight:700 }}><div style={{ fontSize:24,marginBottom:8 }}>✨</div>整形中です…しばらくお待ちください</div>
+                    ) : (
+                      <>
+                        <textarea value={aiDraft} onChange={e=>setAiDraft(e.target.value)} rows={10} style={{ ...inputBase,borderRadius:10,border:"1.5px solid #f0d8e0",resize:"vertical" }} />
+                        <button className="btn-s" onClick={applyDraft} style={{ marginTop:8,width:"100%",borderRadius:11,border:"none",background:"linear-gradient(135deg,#FF8FAB,#FF5C92)",color:"#fff",padding:"10px",fontSize:13,fontWeight:800,cursor:"pointer",boxShadow:"0 3px 10px rgba(255,92,146,0.3)",...F }}>✅ これをレシピに反映する</button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+            <FormField label="実際の時間（分）" value={form.actualTime} onChange={upd("actualTime")} placeholder="45" />
+            <FormField label="参考URL" value={form.url} onChange={upd("url")} placeholder="https://..." />
+          </div>
+          <div style={{ background:"#fff",borderRadius:20,padding:"18px 16px",boxShadow:"0 4px 16px rgba(255,100,140,0.08)",marginBottom:12 }}>
+            <div style={{ fontSize:13,fontWeight:800,color:"#c08090",marginBottom:14 }}>⭐ 評価</div>
+            <label style={labelStyle}>★ 評価</label>
+            <div style={{ display:"flex",gap:4,alignItems:"center",marginBottom:16 }}>
+              {[1,2,3].map(i => (<button key={i} className="star-btn" onClick={()=>setForm(f=>({...f,star:f.star===i?0:i}))} style={{ fontSize:30,background:"none",border:"none",cursor:"pointer",lineHeight:1,color:i<=form.star?"#FFBB35":"#e8e0d8" }}>★</button>))}
+              <span style={{ fontSize:12,fontWeight:800,color:"#FF8FAB",marginLeft:6 }}>{RATING_LABEL[form.star]||""}</span>
+            </div>
+            <label style={labelStyle}>評価ポイント</label>
+            <div style={{ display:"flex",flexWrap:"wrap",gap:6,marginBottom:16 }}>
+              {EVAL_TAGS.map(t => {
+                const active = form.evalTags?.includes(t);
+                return (<button key={t} className="tp btn-s" onClick={()=>setForm(f=>({...f,evalTags:active?f.evalTags.filter(x=>x!==t):[...(f.evalTags||[]),t]}))} style={{ padding:"6px 13px",borderRadius:99,border:"2px solid",borderColor:active?"#FF8FAB":"#f0d8e0",background:active?"#FF8FAB":"#fff",color:active?"#fff":"#c08090",fontSize:12,fontWeight:800,...F }}>{t}</button>);
+              })}
+            </div>
+            <FormField label="改善点メモ" value={form.improvement} onChange={upd("improvement")} placeholder="次はここを変えてみたい…" multi rows={2} />
+          </div>
+          <div style={{ background:"#fff",borderRadius:20,padding:"18px 16px",boxShadow:"0 4px 16px rgba(255,100,140,0.08)",marginBottom:20 }}>
+            <div style={{ fontSize:13,fontWeight:800,color:"#c08090",marginBottom:4 }}>⚡ 1行レシピ</div>
+            <div style={{ fontSize:11,color:"#c0a0b0",fontWeight:600,marginBottom:10 }}>超短縮バージョンを自由に書いてね</div>
+            <textarea value={form.oneliner} onChange={upd("oneliner")} placeholder="🥘 玉ねぎ炒めてカレー粉入れて煮込むだけ！" rows={2} style={{ ...inputBase,resize:"vertical" }} />
+          </div>
+          <button className="btn-s" onClick={save} style={{ width:"100%",borderRadius:16,border:"none",background:"linear-gradient(135deg,#FF8FAB,#FF5C92)",color:"#fff",padding:"15px",fontSize:15,fontWeight:900,cursor:"pointer",marginBottom:10,boxShadow:"0 5px 18px rgba(255,92,146,0.35)",...F }}>{editId ? "更新する 💾" : "保存する 🎉"}</button>
+          <button className="btn-s" onClick={goList} style={{ width:"100%",borderRadius:16,border:"2px solid #f0d8e0",background:"#fff",color:"#c0a0a8",padding:"13px",fontSize:13,fontWeight:700,cursor:"pointer",...F }}>キャンセル</button>
+        </div>
+      </div>
+    </>
+  );
+
+  if (view === "detail" && detail) {
+    const { accent } = cardColor(detail.id);
+    return (
+      <>
+        <style>{css}</style>
+        <div style={{ ...F,minHeight:"100vh",background:"#FFF6F8" }}>
+          <div style={{ background:`linear-gradient(145deg,${accent}bb,${accent}66)`,padding:"18px 20px 30px" }}>
+            <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:18 }}>
+              <button onClick={goList} style={{ background:"rgba(255,255,255,0.5)",border:"none",borderRadius:99,width:34,height:34,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:16,fontWeight:700,...F }}>←</button>
+              <div style={{ display:"flex",gap:8 }}>
+                <button className="btn-s" onClick={()=>startEdit(detail)} style={{ background:"rgba(255,255,255,0.6)",border:"none",borderRadius:99,padding:"7px 14px",fontSize:12,fontWeight:800,cursor:"pointer",...F }}>✏️ 編集</button>
+                <button onClick={()=>toggleFav(detail.id)} style={{ background:"rgba(255,255,255,0.6)",border:"none",borderRadius:99,width:34,height:34,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer" }}><HeartIcon filled={detail.favorite} /></button>
+              </div>
+            </div>
+            <div style={{ fontSize:52,marginBottom:10 }}>{getEmoji(detail.name)}</div>
+            <div style={{ fontSize:23,fontWeight:900,color:"#3a2030",lineHeight:1.2 }}>{detail.name}</div>
+            {detail.oneliner && <div style={{ fontSize:12,color:"#7a5060",fontWeight:700,marginTop:7,background:"rgba(255,255,255,0.45)",display:"inline-block",borderRadius:8,padding:"3px 8px" }}>{detail.oneliner}</div>}
+          </div>
+          <div style={{ padding:"14px 16px 80px" }}>
+            <Section label="評価">
+              <div style={{ display:"flex",alignItems:"center",gap:10,marginBottom:detail.evalTags?.length>0?10:0 }}>
+                <div style={{ fontSize:20,letterSpacing:2 }}>{[1,2,3].map(n=><span key={n} style={{color:n<=detail.star?"#FFBB35":"#e8e0d8"}}>★</span>)}</div>
+                <div style={{ fontSize:12,fontWeight:800,color:"#FF8FAB" }}>{RATING_LABEL[detail.star]||"未評価"}</div>
+              </div>
+              {detail.evalTags?.length > 0 && <div style={{ display:"flex",flexWrap:"wrap",gap:6 }}>{detail.evalTags.map(t=><span key={t} style={{ padding:"4px 10px",borderRadius:99,background:`${accent}55`,color:"#3a2030",fontSize:11,fontWeight:800 }}>{t}</span>)}</div>}
+            </Section>
+            {detail.actualTime && <Section label="⏱ 実際にかかった時間"><div style={{ fontSize:24,fontWeight:900,color:"#3a2030" }}>{detail.actualTime}<span style={{ fontSize:12,color:"#c08090" }}>分</span></div></Section>}
+            {detail.recipe && (
+              <Section label="📋 レシピ・作り方">
+                <div style={{ fontSize:13,color:"#3a2030",lineHeight:1.9,fontWeight:600,fontFamily:"'Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif" }}>
+                  {detail.recipe.split("\n").map((line, i) => {
+                    if (line.startsWith("・")) {
+                      const content = line.slice(1);
+                      const sep = content.includes("\t") ? "\t" : content.match(/　+/) ? "　" : null;
+                      if (sep) {
+                        const idx = content.indexOf(sep);
+                        return (<div key={i} style={{ display:"flex",justifyContent:"space-between",alignItems:"baseline",paddingLeft:2 }}><span>・{content.slice(0,idx).trim()}</span><span style={{ color:"#987080",fontWeight:700,marginLeft:12,whiteSpace:"nowrap" }}>{content.slice(idx).trim()}</span></div>);
+                      }
+                    }
+                    return <div key={i} style={{ whiteSpace:"pre-wrap" }}>{line || "\u00A0"}</div>;
+                  })}
+                </div>
+              </Section>
+            )}
+            {detail.improvement && <Section label="🔧 改善点"><div style={{ fontSize:13,color:"#3a2030",lineHeight:1.6,fontWeight:600 }}>{detail.improvement}</div></Section>}
+            {detail.url && <Section label="🔗 参考URL"><a href={detail.url} target="_blank" rel="noreferrer" style={{ fontSize:12,color:"#FF8FAB",fontWeight:800,wordBreak:"break-all",textDecoration:"none" }}>{detail.url}</a></Section>}
+            <button className="btn-s" onClick={()=>{ if(window.confirm("本当に削除しますか？")) del(detail.id); }} style={{ width:"100%",borderRadius:16,border:"2px solid #ffc0c8",background:"#fff5f7",color:"#FF8090",padding:"13px",fontSize:13,fontWeight:800,cursor:"pointer",...F }}>🗑 削除する</button>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  return null;
+}
