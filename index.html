@@ -741,21 +741,67 @@ document.getElementById('urlAdd').addEventListener('click', () => {
 document.getElementById('mUrlIn').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('urlAdd').click(); });
 
 // Images
-document.getElementById('imgDrop').addEventListener('click', ()=>document.getElementById('imgFile').click());
-document.getElementById('imgFile').addEventListener('change', e=>{
-  if (!curId||!curDate) return;
-  const it = (state.items[curDate]||[]).find(x => String(x.id) === curId); if (!it) return;
-  if (!it.images) it.images=[];
-  const files=Array.from(e.target.files); let p=files.length;
-  files.forEach(f=>{ const r=new FileReader(); r.onload=ev=>{ it.images.push(ev.target.result); if(--p===0){save();renderImgs(it);renderItems();} }; r.readAsDataURL(f); });
-  e.target.value='';
+document.getElementById('imgDrop').addEventListener('click', () => document.getElementById('imgFile').click());
+document.getElementById('imgFile').addEventListener('change', e => {
+  if (!curId || !curDate) return;
+  const it = (state.items[curDate]||[]).find(x => String(x.id) === curId);
+  if (!it) return;
+  if (!it.images) it.images = [];
+
+  const files = Array.from(e.target.files);
+  let pending = files.length;
+
+  files.forEach(f => {
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(f);
+    img.onload = () => {
+      // 長辺800pxに縮小してjpeg圧縮
+      const MAX = 800;
+      let w = img.width, h = img.height;
+      if (w > MAX || h > MAX) {
+        if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+        else       { w = Math.round(w * MAX / h); h = MAX; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      const compressed = canvas.toDataURL('image/jpeg', 0.7);
+      URL.revokeObjectURL(objectUrl);
+
+      it.images.push(compressed);
+      pending--;
+      if (pending === 0) {
+        try {
+          save();
+        } catch(err) {
+          alert('画像が多すぎて保存できませんでした。不要な画像を削除してください。');
+          it.images.pop();
+        }
+        renderImgs(it);
+        // モーダル内だけ更新（モーダルは閉じない）
+        const pin = document.querySelector(`.item-row [data-id="${curId}"]`);
+        if (pin) renderItems();
+      }
+    };
+    img.onerror = () => { pending--; URL.revokeObjectURL(objectUrl); };
+    img.src = objectUrl;
+  });
+  e.target.value = '';
 });
+
 function renderImgs(it) {
-  const g = document.getElementById('imgGrid'); g.innerHTML='';
-  (it.images||[]).forEach((src,i)=>{
-    const w=document.createElement('div'); w.className='img-wrap';
-    w.innerHTML=`<img src="${src}" alt=""><button class="img-del" data-i="${i}">✕</button>`;
-    w.querySelector('.img-del').addEventListener('click',()=>{ it.images.splice(i,1); save(); renderImgs(it); renderItems(); });
+  const g = document.getElementById('imgGrid');
+  g.innerHTML = '';
+  (it.images||[]).forEach((src, i) => {
+    const w = document.createElement('div');
+    w.className = 'img-wrap';
+    w.innerHTML = `<img src="${src}" alt=""><button class="img-del">✕</button>`;
+    w.querySelector('.img-del').addEventListener('click', () => {
+      it.images.splice(i, 1);
+      save();
+      renderImgs(it);
+      renderItems();
+    });
     g.appendChild(w);
   });
 }
