@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -17,34 +18,34 @@ body{font-family:'Zen Maru Gothic',sans-serif;background:var(--sky-pale);color:v
 
 /* ━━ HEADER ━━ */
 .header{
-  background:linear-gradient(160deg,#52C8E0 0%,#3AAFC9 55%,#2A9AB5 100%);
-  position:sticky;top:0;z-index:100;
-  box-shadow:0 3px 20px rgba(28,58,74,.2);
-  position:sticky; /* keep sticky */
+background:linear-gradient(160deg,#52C8E0 0%,#3AAFC9 55%,#2A9AB5 100%);
+position:sticky;top:0;z-index:100;
+box-shadow:0 3px 20px rgba(28,58,74,.2);
+position:sticky; /* keep sticky */
 }
 .header-inner{display:flex;align-items:center;padding:14px 18px 10px;gap:10px;min-height:62px;}
 
 /* TODAY white outline italic */
 .logo-wrap{position:relative;display:inline-block;line-height:1;}
 .lt-white{
-  font-family:'Libre Baskerville',serif;
-  font-style:italic;font-weight:700;font-size:32px;letter-spacing:-0.5px;
-  color:#fff;
-  text-shadow:
-    0 0 1px rgba(255,255,255,.6),
-    1px 1px 3px rgba(28,58,74,.25);
-  display:block;white-space:nowrap;
+font-family:‘Libre Baskerville’,serif;
+font-style:italic;font-weight:700;font-size:32px;letter-spacing:-0.5px;
+color:#fff;
+text-shadow:
+0 0 1px rgba(255,255,255,.6),
+1px 1px 3px rgba(28,58,74,.25);
+display:block;white-space:nowrap;
 }
 .logo-sub{font-size:10px;color:rgba(255,255,255,.82);letter-spacing:.14em;text-transform:uppercase;margin-top:1px;}
 
 /* trip title in header */
 .header-trip{
-  flex:1;
-  font-family:'Zen Maru Gothic',sans-serif;
-  font-size:14px;font-weight:700;
-  color:rgba(255,255,255,.95);
-  border:none;background:transparent;outline:none;
-  min-width:0;
+flex:1;
+font-family:‘Zen Maru Gothic’,sans-serif;
+font-size:14px;font-weight:700;
+color:rgba(255,255,255,.95);
+border:none;background:transparent;outline:none;
+min-width:0;
 }
 .header-trip::placeholder{color:rgba(255,255,255,.55);font-weight:400;}
 
@@ -62,166 +63,175 @@ body{font-family:'Zen Maru Gothic',sans-serif;background:var(--sky-pale);color:v
 
 /* ━━ DATE TABS ━━ */
 .date-bar-wrap{
-  background:var(--white);
-  border-bottom:1.5px solid var(--border);
-  position:sticky;top:0;z-index:90;
-  /* will be set below sticky offset after header */
+background:var(–white);
+border-bottom:1.5px solid var(–border);
+position:sticky;top:0;z-index:90;
+/* will be set below sticky offset after header */
 }
 .date-bar{
-  display:flex;align-items:center;gap:0;
-  overflow-x:auto;padding:10px 12px 8px;
-  scrollbar-width:none;
+display:flex;align-items:center;gap:0;
+overflow-x:auto;padding:10px 12px 8px;
+scrollbar-width:none;
 }
 .date-bar::-webkit-scrollbar{display:none;}
 
 .date-tab{
-  flex-shrink:0;
-  display:flex;flex-direction:column;align-items:center;
-  padding:7px 14px;margin-right:6px;
-  border-radius:12px;cursor:pointer;
-  border:1.5px solid var(--border);
-  background:var(--white);
-  transition:all .15s;
-  min-width:56px;
+flex-shrink:0;
+display:flex;flex-direction:column;align-items:center;
+padding:7px 14px;margin-right:6px;
+border-radius:12px;cursor:pointer;
+border:1.5px solid var(–border);
+background:var(–white);
+transition:all .15s;
+min-width:56px;
 }
-.date-tab:hover{border-color:var(--sky);background:var(--sky-pale);}
-.date-tab.active{background:var(--sky-deep);border-color:var(--sky-deep);}
-.date-tab .dt-day{font-size:10px;font-weight:700;color:var(--ink-soft);letter-spacing:.04em;}
+.date-tab:hover{border-color:var(–sky);background:var(–sky-pale);}
+.date-tab.active{background:var(–sky-deep);border-color:var(–sky-deep);}
+.date-tab .dt-day{font-size:10px;font-weight:700;color:var(–ink-soft);letter-spacing:.04em;}
 .date-tab.active .dt-day{color:rgba(255,255,255,.8);}
-.date-tab .dt-num{font-size:18px;font-weight:700;color:var(--ink);line-height:1.1;}
+.date-tab .dt-num{font-size:18px;font-weight:700;color:var(–ink);line-height:1.1;}
 .date-tab.active .dt-num{color:#fff;}
-.date-tab .dt-wd{font-size:10px;color:var(--ink-soft);}
+.date-tab .dt-wd{font-size:10px;color:var(–ink-soft);}
 .date-tab.active .dt-wd{color:rgba(255,255,255,.75);}
 
 .date-add-btn{
-  flex-shrink:0;
-  width:40px;height:40px;
-  border-radius:12px;
-  border:1.5px dashed var(--sky);
-  background:var(--white);
-  color:var(--sky-deep);
-  font-size:20px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  transition:background .15s;
+flex-shrink:0;
+width:40px;height:40px;
+border-radius:12px;
+border:1.5px dashed var(–sky);
+background:var(–white);
+color:var(–sky-deep);
+font-size:20px;cursor:pointer;
+display:flex;align-items:center;justify-content:center;
+transition:background .15s;
 }
-.date-add-btn:hover{background:var(--sky-pale);}
+.date-add-btn:hover{background:var(–sky-pale);}
 
 /* ━━ MAIN ━━ */
 .main{max-width:680px;margin:0 auto;padding:16px 15px 120px;}
 
 /* ━━ ADD BAR ━━ */
-.add-bar{background:var(--white);border:1.5px solid var(--border);border-radius:14px;padding:11px 14px;margin-bottom:14px;display:flex;align-items:center;flex-wrap:wrap;gap:8px;box-shadow:0 1px 6px rgba(91,196,220,.08);}
-.add-name{font-family:'Zen Maru Gothic',sans-serif;font-size:14px;border:none;background:transparent;color:var(--ink);outline:none;flex:1;min-width:120px;}
-.add-name::placeholder{color:var(--ink-soft);}
-.add-time{font-family:'Zen Maru Gothic',sans-serif;font-size:13px;border:1px solid var(--border);border-radius:8px;background:var(--sky-pale);color:var(--ink);padding:5px 8px;outline:none;width:90px;}
+.add-bar{background:var(–white);border:1.5px solid var(–border);border-radius:14px;padding:11px 14px;margin-bottom:14px;display:flex;align-items:center;flex-wrap:wrap;gap:8px;box-shadow:0 1px 6px rgba(91,196,220,.08);}
+.add-name{font-family:‘Zen Maru Gothic’,sans-serif;font-size:14px;border:none;background:transparent;color:var(–ink);outline:none;flex:1;min-width:120px;}
+.add-name::placeholder{color:var(–ink-soft);}
+.add-time{font-family:‘Zen Maru Gothic’,sans-serif;font-size:13px;border:1px solid var(–border);border-radius:8px;background:var(–sky-pale);color:var(–ink);padding:5px 8px;outline:none;width:90px;}
 .cdots{display:flex;gap:5px;}
 .cdot{width:18px;height:18px;border-radius:50%;cursor:pointer;border:2.5px solid transparent;transition:transform .15s;}
 .cdot:hover{transform:scale(1.2);}
-.cdot.sel{border-color:var(--ink);transform:scale(1.18);}
-.cdot[data-c="1"]{background:var(--c1)}.cdot[data-c="2"]{background:var(--c2)}.cdot[data-c="3"]{background:var(--c3)}.cdot[data-c="4"]{background:var(--c4)}.cdot[data-c="5"]{background:var(--c5)}
-.add-btn{background:linear-gradient(135deg,var(--sky-deep),var(--sky));color:#fff;border:none;border-radius:10px;width:34px;height:34px;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(58,175,201,.35);transition:opacity .15s,transform .1s;}
+.cdot.sel{border-color:var(–ink);transform:scale(1.18);}
+.cdot[data-c=“1”]{background:var(–c1)}.cdot[data-c=“2”]{background:var(–c2)}.cdot[data-c=“3”]{background:var(–c3)}.cdot[data-c=“4”]{background:var(–c4)}.cdot[data-c=“5”]{background:var(–c5)}
+.add-btn{background:linear-gradient(135deg,var(–sky-deep),var(–sky));color:#fff;border:none;border-radius:10px;width:34px;height:34px;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(58,175,201,.35);transition:opacity .15s,transform .1s;}
 .add-btn:hover{opacity:.82}.add-btn:active{transform:scale(.91)}
 
 /* no-date info */
-.no-date{text-align:center;padding:40px 20px;color:var(--ink-soft);}
+.no-date{text-align:center;padding:40px 20px;color:var(–ink-soft);}
 .no-date .ei{font-size:38px;margin-bottom:10px;}
 .no-date p{font-size:13px;line-height:1.8;}
 
 /* ━━ ITEMS ━━ */
 .items-list{display:flex;flex-direction:column;gap:8px;}
-.item-row{background:var(--white);border:1.5px solid var(--border);border-radius:13px;display:flex;align-items:center;overflow:hidden;cursor:pointer;transition:box-shadow .15s,transform .12s;}
+.item-row{background:var(–white);border:1.5px solid var(–border);border-radius:13px;display:flex;align-items:center;overflow:hidden;cursor:pointer;transition:box-shadow .15s,transform .12s;}
 .item-row:hover{box-shadow:0 4px 16px rgba(91,196,220,.22);transform:translateY(-1px);}
 .item-row.completed{opacity:.6;}
 .item-row.dragging{opacity:.45;transform:scale(.97);box-shadow:0 8px 24px rgba(28,58,74,.18);}
-.item-row.drag-over{border-color:var(--sky);box-shadow:0 0 0 2.5px var(--sky-light);}
+.item-row.drag-over{border-color:var(–sky);box-shadow:0 0 0 2.5px var(–sky-light);}
 .i-strip{width:5px;align-self:stretch;flex-shrink:0;}
-.i-strip[data-c="1"]{background:var(--c1)}.i-strip[data-c="2"]{background:var(--c2)}.i-strip[data-c="3"]{background:var(--c3)}.i-strip[data-c="4"]{background:var(--c4)}.i-strip[data-c="5"]{background:var(--c5)}
+.i-strip[data-c=“1”]{background:var(–c1)}.i-strip[data-c=“2”]{background:var(–c2)}.i-strip[data-c=“3”]{background:var(–c3)}.i-strip[data-c=“4”]{background:var(–c4)}.i-strip[data-c=“5”]{background:var(–c5)}
 /* ドラッグハンドル：三本線アイコン、ここだけ長押し有効 */
 .i-handle{
-  width:36px;align-self:stretch;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;
-  cursor:grab;
-  touch-action:none;
-  user-select:none;
-  -webkit-user-select:none;
-  background:none;
-  border:none;padding:0;
+width:36px;align-self:stretch;flex-shrink:0;
+display:flex;align-items:center;justify-content:center;
+cursor:grab;
+touch-action:none;
+user-select:none;
+-webkit-user-select:none;
+background:none;
+border:none;padding:0;
 }
 .i-handle:active{cursor:grabbing;}
 .i-handle svg{pointer-events:none;}
-.i-time{font-size:12px;color:var(--sky-deep);font-weight:700;padding:13px 6px 13px 2px;flex-shrink:0;white-space:nowrap;min-width:46px;letter-spacing:.02em;}
-.i-sep{width:1px;height:22px;background:var(--border);flex-shrink:0;}
-.i-name{flex:1;font-size:14px;font-weight:500;padding:13px 6px 13px 10px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.item-row.completed .i-name{text-decoration:line-through;color:var(--ink-soft);}
-.i-pin{font-size:12px;padding:13px 10px 13px 2px;color:var(--ink-soft);flex-shrink:0;}
+.i-time{font-size:12px;color:var(–sky-deep);font-weight:700;padding:13px 6px 13px 2px;flex-shrink:0;white-space:nowrap;min-width:46px;letter-spacing:.02em;}
+.i-sep{width:1px;height:22px;background:var(–border);flex-shrink:0;}
+.i-name{flex:1;font-size:14px;font-weight:500;padding:13px 6px 13px 10px;color:var(–ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.item-row.completed .i-name{text-decoration:line-through;color:var(–ink-soft);}
+.i-pin{font-size:12px;padding:13px 10px 13px 2px;color:var(–ink-soft);flex-shrink:0;}
 
-.empty-state{text-align:center;padding:40px 20px;color:var(--ink-soft);}
+.empty-state{text-align:center;padding:40px 20px;color:var(–ink-soft);}
 .empty-state .ei{font-size:38px;margin-bottom:10px;}
 .empty-state p{font-size:13px;line-height:1.8;}
 
 /* ━━ MODAL ━━ */
 .overlay{position:fixed;inset:0;background:rgba(28,58,74,.4);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
 .overlay.open{opacity:1;pointer-events:all;}
-.modal{background:var(--white);border-radius:22px 22px 0 0;width:100%;max-width:680px;max-height:90vh;overflow-y:auto;padding-bottom:48px;transform:translateY(50px);transition:transform .28s cubic-bezier(.34,1.25,.64,1);}
+.modal{background:var(–white);border-radius:22px 22px 0 0;width:100%;max-width:680px;max-height:90vh;overflow-y:auto;padding-bottom:48px;transform:translateY(50px);transition:transform .28s cubic-bezier(.34,1.25,.64,1);}
 .overlay.open .modal{transform:translateY(0);}
-.m-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:14px auto 0;}
+.m-handle{width:36px;height:4px;background:var(–border);border-radius:2px;margin:14px auto 0;}
 .m-stripe{height:5px;margin-top:12px;}
-.m-stripe[data-c="1"]{background:var(--c1)}.m-stripe[data-c="2"]{background:var(--c2)}.m-stripe[data-c="3"]{background:var(--c3)}.m-stripe[data-c="4"]{background:var(--c4)}.m-stripe[data-c="5"]{background:var(--c5)}
-.m-topbar{display:flex;align-items:center;gap:10px;padding:14px 18px 12px;border-bottom:1.5px solid var(--border);}
-.m-title{flex:1;font-size:16px;font-weight:700;color:var(--ink);}
-.m-time-edit{font-family:'Zen Maru Gothic',sans-serif;font-size:13px;border:1px solid var(--border);border-radius:8px;background:var(--sky-pale);color:var(--ink);padding:5px 8px;outline:none;width:90px;}
-.m-close{background:none;border:none;font-size:17px;color:var(--ink-soft);cursor:pointer;padding:4px;}
-.m-close:hover{color:var(--ink)}
+.m-stripe[data-c=“1”]{background:var(–c1)}.m-stripe[data-c=“2”]{background:var(–c2)}.m-stripe[data-c=“3”]{background:var(–c3)}.m-stripe[data-c=“4”]{background:var(–c4)}.m-stripe[data-c=“5”]{background:var(–c5)}
+.m-topbar{display:flex;align-items:center;gap:10px;padding:14px 18px 12px;border-bottom:1.5px solid var(–border);}
+.m-title{flex:1;font-size:16px;font-weight:700;color:var(–ink);}
+.m-time-edit{font-family:‘Zen Maru Gothic’,sans-serif;font-size:13px;border:1px solid var(–border);border-radius:8px;background:var(–sky-pale);color:var(–ink);padding:5px 8px;outline:none;width:90px;}
+.m-close{background:none;border:none;font-size:17px;color:var(–ink-soft);cursor:pointer;padding:4px;}
+.m-close:hover{color:var(–ink)}
 .m-body{padding:16px 18px;display:flex;flex-direction:column;gap:18px;}
-.sec-lbl{font-size:10px;font-weight:700;color:var(--sky-deep);letter-spacing:.12em;text-transform:uppercase;margin-bottom:7px;}
-.m-textarea{font-family:'Zen Maru Gothic',sans-serif;font-size:14px;color:var(--ink);border:1.5px solid var(--border);border-radius:10px;background:var(--sky-pale);padding:12px;resize:none;outline:none;width:100%;min-height:88px;line-height:1.7;transition:border-color .15s;}
-.m-textarea:focus{border-color:var(--sky)}.m-textarea::placeholder{color:var(--ink-soft)}
-.url-row{display:flex;gap:8px;}
-.m-url{font-family:'Zen Maru Gothic',sans-serif;font-size:13px;border:1.5px solid var(--border);border-radius:10px;background:var(--sky-pale);color:var(--ink);padding:9px 12px;outline:none;flex:1;transition:border-color .15s;}
-.m-url:focus{border-color:var(--sky)}.m-url::placeholder{color:var(--ink-soft)}
-.url-btn{background:linear-gradient(135deg,var(--sky-deep),var(--sky));color:#fff;border:none;border-radius:10px;padding:9px 14px;font-family:'Zen Maru Gothic',sans-serif;font-size:13px;cursor:pointer;white-space:nowrap;transition:opacity .15s;}
+.sec-lbl{font-size:10px;font-weight:700;color:var(–sky-deep);letter-spacing:.12em;text-transform:uppercase;margin-bottom:7px;}
+.m-textarea{font-family:‘Zen Maru Gothic’,sans-serif;font-size:14px;color:var(–ink);border:1.5px solid var(–border);border-radius:10px;background:var(–sky-pale);padding:12px;resize:none;outline:none;width:100%;min-height:88px;line-height:1.7;transition:border-color .15s;}
+.m-textarea:focus{border-color:var(–sky)}.m-textarea::placeholder{color:var(–ink-soft)}
+.url-row{display:flex;gap:8px;align-items:center;}
+.m-url{font-family:‘Zen Maru Gothic’,sans-serif;font-size:13px;border:1.5px solid var(–border);border-radius:10px;background:var(–sky-pale);color:var(–ink);padding:9px 12px;outline:none;flex:1;transition:border-color .15s;}
+.m-url:focus{border-color:var(–sky)}.m-url::placeholder{color:var(–ink-soft)}
+.url-btn{background:linear-gradient(135deg,var(–sky-deep),var(–sky));color:#fff;border:none;border-radius:10px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:opacity .15s;}
 .url-btn:hover{opacity:.8}
 .url-list{display:flex;flex-direction:column;gap:6px;margin-top:8px;}
-.url-chip{display:flex;align-items:center;gap:8px;background:var(--sky-pale);border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:12px;}
-.url-chip a{flex:1;color:var(--sky-deep);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.url-chip{display:flex;align-items:center;gap:8px;background:var(–sky-pale);border:1px solid var(–border);border-radius:8px;padding:7px 10px;font-size:12px;}
+.url-chip a{flex:1;color:var(–sky-deep);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .url-chip a:hover{text-decoration:underline}
-.url-del{background:none;border:none;color:var(--ink-soft);cursor:pointer;font-size:13px;padding:0 2px;}
-.url-del:hover{color:var(--ink)}
-.img-drop{border:1.5px dashed var(--sky);border-radius:12px;padding:18px;text-align:center;cursor:pointer;background:var(--sky-pale);font-size:13px;color:var(--ink-mid);transition:background .15s;}
-.img-drop:hover{background:#D0EFF8}
-.img-drop .di{font-size:22px;margin-bottom:4px;}
+.url-del{background:none;border:none;color:var(–ink-soft);cursor:pointer;font-size:13px;padding:0 2px;}
+.url-del:hover{color:var(–ink)}
+/* 画像追加ボタン（アイコンのみ） */
+.img-action-row{display:flex;align-items:center;gap:12px;margin-bottom:4px;}
+.img-icon-btn{background:none;border:none;color:var(–sky-deep);cursor:pointer;padding:4px;display:flex;align-items:center;opacity:.85;transition:opacity .15s,transform .15s;}
+.img-icon-btn:hover{opacity:1;transform:scale(1.1);}
 .hidden-f{display:none;}
-.img-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px;}
-.img-wrap{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;border:1.5px solid var(--border);}
-.img-wrap img{width:100%;height:100%;object-fit:cover;}
-.img-del{position:absolute;top:4px;right:4px;background:rgba(28,58,74,.72);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.img-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px;}
+.img-wrap{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;}
+.img-wrap img{width:100%;height:100%;object-fit:cover;cursor:pointer;transition:opacity .15s;}
+.img-wrap img:hover{opacity:.88;}
+.img-del{position:absolute;top:4px;right:4px;background:rgba(28,58,74,.65);color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+/* ライトボックス */
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+.lightbox.open{opacity:1;pointer-events:all;}
+.lb-img{max-width:94vw;max-height:88vh;border-radius:10px;object-fit:contain;box-shadow:0 8px 40px rgba(0,0,0,.5);}
+.lb-close{position:absolute;top:18px;right:18px;background:rgba(255,255,255,.18);border:none;color:#fff;font-size:20px;width:40px;height:40px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 .m-color-row{display:flex;gap:8px;}
 .mcd{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2.5px solid transparent;transition:transform .15s;}
-.mcd:hover{transform:scale(1.15)}.mcd.sel{border-color:var(--ink);transform:scale(1.12)}
-.mcd[data-c="1"]{background:var(--c1)}.mcd[data-c="2"]{background:var(--c2)}.mcd[data-c="3"]{background:var(--c3)}.mcd[data-c="4"]{background:var(--c4)}.mcd[data-c="5"]{background:var(--c5)}
-.m-del{background:none;border:1.5px solid #F4A0A0;border-radius:10px;color:#C05050;font-family:'Zen Maru Gothic',sans-serif;font-size:13px;padding:11px;cursor:pointer;width:100%;margin-top:4px;transition:background .15s;}
+.mcd:hover{transform:scale(1.15)}.mcd.sel{border-color:var(–ink);transform:scale(1.12)}
+.mcd[data-c=“1”]{background:var(–c1)}.mcd[data-c=“2”]{background:var(–c2)}.mcd[data-c=“3”]{background:var(–c3)}.mcd[data-c=“4”]{background:var(–c4)}.mcd[data-c=“5”]{background:var(–c5)}
+.m-del{background:none;border:1.5px solid #F4A0A0;border-radius:10px;color:#C05050;font-family:‘Zen Maru Gothic’,sans-serif;font-size:13px;padding:11px;cursor:pointer;width:100%;margin-top:4px;transition:background .15s;}
 .m-del:hover{background:#FDE8E8}
 
 /* ━━ DATE MODAL ━━ */
 .date-overlay{position:fixed;inset:0;background:rgba(28,58,74,.45);z-index:300;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
 .date-overlay.open{opacity:1;pointer-events:all;}
-.date-modal{background:var(--white);border-radius:20px;padding:28px 24px 24px;width:90%;max-width:340px;box-shadow:0 12px 40px rgba(28,58,74,.2);transform:scale(.95);transition:transform .22s cubic-bezier(.34,1.3,.64,1);}
+.date-modal{background:var(–white);border-radius:20px;padding:28px 24px 24px;width:90%;max-width:340px;box-shadow:0 12px 40px rgba(28,58,74,.2);transform:scale(.95);transition:transform .22s cubic-bezier(.34,1.3,.64,1);}
 .date-overlay.open .date-modal{transform:scale(1);}
-.dm-title{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:16px;text-align:center;}
-.dm-input{font-family:'Zen Maru Gothic',sans-serif;font-size:15px;border:1.5px solid var(--border);border-radius:10px;background:var(--sky-pale);color:var(--ink);padding:10px 12px;outline:none;width:100%;transition:border-color .15s;}
-.dm-input:focus{border-color:var(--sky);}
+.dm-title{font-size:15px;font-weight:700;color:var(–ink);margin-bottom:16px;text-align:center;}
+.dm-input{font-family:‘Zen Maru Gothic’,sans-serif;font-size:15px;border:1.5px solid var(–border);border-radius:10px;background:var(–sky-pale);color:var(–ink);padding:10px 12px;outline:none;width:100%;transition:border-color .15s;}
+.dm-input:focus{border-color:var(–sky);}
 .dm-btns{display:flex;gap:10px;margin-top:16px;}
-.dm-cancel{flex:1;background:none;border:1.5px solid var(--border);border-radius:10px;color:var(--ink-mid);font-family:'Zen Maru Gothic',sans-serif;font-size:14px;padding:10px;cursor:pointer;transition:background .15s;}
-.dm-cancel:hover{background:var(--sky-pale);}
-.dm-ok{flex:1;background:linear-gradient(135deg,var(--sky-deep),var(--sky));border:none;border-radius:10px;color:#fff;font-family:'Zen Maru Gothic',sans-serif;font-size:14px;padding:10px;cursor:pointer;transition:opacity .15s;}
+.dm-cancel{flex:1;background:none;border:1.5px solid var(–border);border-radius:10px;color:var(–ink-mid);font-family:‘Zen Maru Gothic’,sans-serif;font-size:14px;padding:10px;cursor:pointer;transition:background .15s;}
+.dm-cancel:hover{background:var(–sky-pale);}
+.dm-ok{flex:1;background:linear-gradient(135deg,var(–sky-deep),var(–sky));border:none;border-radius:10px;color:#fff;font-family:‘Zen Maru Gothic’,sans-serif;font-size:14px;padding:10px;cursor:pointer;transition:opacity .15s;}
 .dm-ok:hover{opacity:.82}
 
-::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(–border);border-radius:2px}
 </style>
+
 </head>
 <body>
 
 <!-- HEADER -->
+
 <header class="header">
   <div class="header-inner" style="position:relative;">
     <div class="logo-wrap">
@@ -230,55 +240,58 @@ body{font-family:'Zen Maru Gothic',sans-serif;background:var(--sky-pale);color:v
     </div>
     <input class="header-trip" id="tripTitle" placeholder="旅のタイトルを入力…" maxlength="40">
 
-    <!-- シマエナガ 2匹 -->
-    <div class="birds-wrap">
+```
+<!-- シマエナガ 2匹 -->
+<div class="birds-wrap">
 
-      <!-- シマエナガ① やや大きめ・右向き -->
-      <div class="bird" style="right:8px;top:-2px;">
-        <svg width="56" height="48" viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
-          <!-- しっぽ -->
-          <polygon points="60,120 10,150 70,135" fill="rgba(255,255,255,0.92)"/>
-          <!-- 体 -->
-          <ellipse cx="160" cy="115" rx="65" ry="55" fill="rgba(255,255,255,0.92)"/>
-          <!-- 頭 -->
-          <circle cx="210" cy="85" r="35" fill="rgba(255,255,255,0.92)"/>
-          <!-- くちばし -->
-          <polygon points="245,85 268,95 245,105" fill="rgba(180,225,240,0.9)"/>
-          <!-- 羽（上に羽ばたき） -->
-          <path d="M140,90 Q120,60 100,50 Q115,70 95,80 Q115,75 130,85 Q120,90 105,100 Q130,95 150,90 Q145,85 140,90 Z" fill="rgba(255,255,255,0.92)"/>
-          <!-- 足 -->
-          <ellipse cx="150" cy="162" rx="7" ry="4" fill="rgba(255,255,255,0.85)"/>
-          <ellipse cx="172" cy="162" rx="7" ry="4" fill="rgba(255,255,255,0.85)"/>
-          <!-- 目 -->
-          <circle cx="220" cy="80" r="7" fill="rgba(160,210,230,0.95)"/>
-          <!-- 目のハイライト -->
-          <circle cx="223" cy="77" r="2.5" fill="rgba(255,255,255,0.8)"/>
-        </svg>
-      </div>
+  <!-- シマエナガ① やや大きめ・右向き -->
+  <div class="bird" style="right:8px;top:-2px;">
+    <svg width="56" height="48" viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
+      <!-- しっぽ -->
+      <polygon points="60,120 10,150 70,135" fill="rgba(255,255,255,0.92)"/>
+      <!-- 体 -->
+      <ellipse cx="160" cy="115" rx="65" ry="55" fill="rgba(255,255,255,0.92)"/>
+      <!-- 頭 -->
+      <circle cx="210" cy="85" r="35" fill="rgba(255,255,255,0.92)"/>
+      <!-- くちばし -->
+      <polygon points="245,85 268,95 245,105" fill="rgba(180,225,240,0.9)"/>
+      <!-- 羽（上に羽ばたき） -->
+      <path d="M140,90 Q120,60 100,50 Q115,70 95,80 Q115,75 130,85 Q120,90 105,100 Q130,95 150,90 Q145,85 140,90 Z" fill="rgba(255,255,255,0.92)"/>
+      <!-- 足 -->
+      <ellipse cx="150" cy="162" rx="7" ry="4" fill="rgba(255,255,255,0.85)"/>
+      <ellipse cx="172" cy="162" rx="7" ry="4" fill="rgba(255,255,255,0.85)"/>
+      <!-- 目 -->
+      <circle cx="220" cy="80" r="7" fill="rgba(160,210,230,0.95)"/>
+      <!-- 目のハイライト -->
+      <circle cx="223" cy="77" r="2.5" fill="rgba(255,255,255,0.8)"/>
+    </svg>
+  </div>
 
-      <!-- シマエナガ② 小さめ・左右反転（左向き） -->
-      <div class="bird" style="right:76px;top:4px;">
-        <svg width="44" height="38" viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg" transform="scale(-1,1)" style="transform:scaleX(-1);">
-          <!-- しっぽ -->
-          <polygon points="60,120 10,150 70,135" fill="rgba(255,255,255,0.92)"/>
-          <!-- 体 -->
-          <ellipse cx="160" cy="115" rx="65" ry="55" fill="rgba(255,255,255,0.92)"/>
-          <!-- 頭 -->
-          <circle cx="210" cy="85" r="35" fill="rgba(255,255,255,0.92)"/>
-          <!-- くちばし -->
-          <polygon points="245,85 268,95 245,105" fill="rgba(180,225,240,0.9)"/>
-          <!-- 羽 -->
-          <path d="M140,90 Q120,60 100,50 Q115,70 95,80 Q115,75 130,85 Q120,90 105,100 Q130,95 150,90 Q145,85 140,90 Z" fill="rgba(255,255,255,0.92)"/>
-          <!-- 足 -->
-          <ellipse cx="150" cy="162" rx="7" ry="4" fill="rgba(255,255,255,0.85)"/>
-          <ellipse cx="172" cy="162" rx="7" ry="4" fill="rgba(255,255,255,0.85)"/>
-          <!-- 目 -->
-          <circle cx="220" cy="80" r="7" fill="rgba(160,210,230,0.95)"/>
-          <circle cx="223" cy="77" r="2.5" fill="rgba(255,255,255,0.8)"/>
-        </svg>
-      </div>
+  <!-- シマエナガ② 小さめ・左右反転（左向き） -->
+  <div class="bird" style="right:76px;top:4px;">
+    <svg width="44" height="38" viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg" transform="scale(-1,1)" style="transform:scaleX(-1);">
+      <!-- しっぽ -->
+      <polygon points="60,120 10,150 70,135" fill="rgba(255,255,255,0.92)"/>
+      <!-- 体 -->
+      <ellipse cx="160" cy="115" rx="65" ry="55" fill="rgba(255,255,255,0.92)"/>
+      <!-- 頭 -->
+      <circle cx="210" cy="85" r="35" fill="rgba(255,255,255,0.92)"/>
+      <!-- くちばし -->
+      <polygon points="245,85 268,95 245,105" fill="rgba(180,225,240,0.9)"/>
+      <!-- 羽 -->
+      <path d="M140,90 Q120,60 100,50 Q115,70 95,80 Q115,75 130,85 Q120,90 105,100 Q130,95 150,90 Q145,85 140,90 Z" fill="rgba(255,255,255,0.92)"/>
+      <!-- 足 -->
+      <ellipse cx="150" cy="162" rx="7" ry="4" fill="rgba(255,255,255,0.85)"/>
+      <ellipse cx="172" cy="162" rx="7" ry="4" fill="rgba(255,255,255,0.85)"/>
+      <!-- 目 -->
+      <circle cx="220" cy="80" r="7" fill="rgba(160,210,230,0.95)"/>
+      <circle cx="223" cy="77" r="2.5" fill="rgba(255,255,255,0.8)"/>
+    </svg>
+  </div>
 
-    </div><!-- /birds-wrap -->
+</div><!-- /birds-wrap -->
+```
+
   </div>
   <div class="header-wave">
     <svg viewBox="0 0 400 18" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
@@ -288,6 +301,7 @@ body{font-family:'Zen Maru Gothic',sans-serif;background:var(--sky-pale);color:v
 </header>
 
 <!-- DATE TABS -->
+
 <div class="date-bar-wrap">
   <div class="date-bar" id="dateBar">
     <!-- tabs injected here -->
@@ -296,6 +310,7 @@ body{font-family:'Zen Maru Gothic',sans-serif;background:var(--sky-pale);color:v
 </div>
 
 <!-- MAIN -->
+
 <main class="main" id="mainArea">
   <!-- no date selected -->
   <div class="no-date" id="noDateMsg">
@@ -332,6 +347,7 @@ body{font-family:'Zen Maru Gothic',sans-serif;background:var(--sky-pale);color:v
   </div>
 
   <!-- add bar (hidden until date selected) -->
+
   <div class="add-bar" id="addBar" style="display:none;">
     <input class="add-name" id="addName" placeholder="＋ 項目を追加…" maxlength="60">
     <input class="add-time" id="addTime" type="time">
@@ -380,6 +396,7 @@ body{font-family:'Zen Maru Gothic',sans-serif;background:var(--sky-pale);color:v
 </main>
 
 <!-- ITEM DETAIL MODAL -->
+
 <div class="overlay" id="overlay">
   <div class="modal">
     <div class="m-handle"></div>
@@ -405,13 +422,19 @@ body{font-family:'Zen Maru Gothic',sans-serif;background:var(--sky-pale);color:v
         <div class="sec-lbl">参考URL</div>
         <div class="url-row">
           <input class="m-url" id="mUrlIn" type="url" placeholder="https://…">
-          <button class="url-btn" id="urlAdd">追加</button>
+          <button class="url-btn" id="urlAdd">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><line x1="8" y1="2" x2="8" y2="14" stroke="white" stroke-width="2.2" stroke-linecap="round"/><line x1="2" y1="8" x2="14" y2="8" stroke="white" stroke-width="2.2" stroke-linecap="round"/></svg>
+          </button>
         </div>
         <div class="url-list" id="urlList"></div>
       </div>
       <div>
         <div class="sec-lbl">キャプチャ・画像</div>
-        <div class="img-drop" id="imgDrop"><div class="di">📷</div><div>タップして画像を追加</div></div>
+        <div class="img-action-row">
+          <button class="img-icon-btn" id="imgDrop" title="画像を追加">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="3" stroke="currentColor" stroke-width="1.8"/><circle cx="8.5" cy="10.5" r="2" stroke="currentColor" stroke-width="1.6"/><path d="M2 17 L7 12 L11 16 L15 12 L22 17" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
         <input class="hidden-f" id="imgFile" type="file" accept="image/*" multiple>
         <div class="img-grid" id="imgGrid"></div>
       </div>
@@ -420,7 +443,15 @@ body{font-family:'Zen Maru Gothic',sans-serif;background:var(--sky-pale);color:v
   </div>
 </div>
 
+<!-- LIGHTBOX -->
+
+<div class="lightbox" id="lightbox">
+  <button class="lb-close" id="lbClose">✕</button>
+  <img class="lb-img" id="lbImg" src="" alt="">
+</div>
+
 <!-- DATE PICKER MODAL -->
+
 <div class="date-overlay" id="dateOverlay">
   <div class="date-modal">
     <div class="dm-title">📅 日付を追加</div>
@@ -744,7 +775,6 @@ document.getElementById('imgFile').addEventListener('change', e => {
     const img = new Image();
     const objectUrl = URL.createObjectURL(f);
     img.onload = () => {
-      // 長辺800pxに縮小してjpeg圧縮
       const MAX = 800;
       let w = img.width, h = img.height;
       if (w > MAX || h > MAX) {
@@ -756,20 +786,15 @@ document.getElementById('imgFile').addEventListener('change', e => {
       canvas.getContext('2d').drawImage(img, 0, 0, w, h);
       const compressed = canvas.toDataURL('image/jpeg', 0.7);
       URL.revokeObjectURL(objectUrl);
-
       it.images.push(compressed);
       pending--;
       if (pending === 0) {
-        try {
-          save();
-        } catch(err) {
+        try { save(); } catch(err) {
           alert('画像が多すぎて保存できませんでした。不要な画像を削除してください。');
           it.images.pop();
         }
         renderImgs(it);
-        // モーダル内だけ更新（モーダルは閉じない）
-        const pin = document.querySelector(`.item-row [data-id="${curId}"]`);
-        if (pin) renderItems();
+        renderItems();
       }
     };
     img.onerror = () => { pending--; URL.revokeObjectURL(objectUrl); };
@@ -785,6 +810,8 @@ function renderImgs(it) {
     const w = document.createElement('div');
     w.className = 'img-wrap';
     w.innerHTML = `<img src="${src}" alt=""><button class="img-del">✕</button>`;
+    // タップで全画面表示
+    w.querySelector('img').addEventListener('click', () => openLightbox(src));
     w.querySelector('.img-del').addEventListener('click', () => {
       it.images.splice(i, 1);
       save();
@@ -795,9 +822,24 @@ function renderImgs(it) {
   });
 }
 
+// ━━ LIGHTBOX ━━
+function openLightbox(src) {
+  document.getElementById('lbImg').src = src;
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.getElementById('lbImg').src = '';
+}
+document.getElementById('lbClose').addEventListener('click', closeLightbox);
+document.getElementById('lightbox').addEventListener('click', e => {
+  if (e.target === document.getElementById('lightbox')) closeLightbox();
+});
+
 // ━━ INIT ━━
 renderDateBar();
 renderItems();
 </script>
+
 </body>
 </html>
