@@ -3,7 +3,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Today ✈ 旅のしおり</title>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,700;1,700&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -169,7 +169,8 @@ border:none;padding:0;
 .m-stripe{height:5px;margin-top:12px;}
 .m-stripe[data-c=“1”]{background:var(–c1)}.m-stripe[data-c=“2”]{background:var(–c2)}.m-stripe[data-c=“3”]{background:var(–c3)}.m-stripe[data-c=“4”]{background:var(–c4)}.m-stripe[data-c=“5”]{background:var(–c5)}
 .m-topbar{display:flex;align-items:center;gap:10px;padding:14px 18px 12px;border-bottom:1.5px solid var(–border);}
-.m-title{flex:1;font-size:16px;font-weight:700;color:var(–ink);}
+.m-title-input{flex:1;font-family:‘Zen Maru Gothic’,sans-serif;font-size:16px;font-weight:700;color:var(–ink);border:none;background:transparent;outline:none;min-width:0;}
+.m-title-input::placeholder{color:var(–ink-soft);font-weight:400;}
 .m-time-edit{font-family:‘Zen Maru Gothic’,sans-serif;font-size:13px;border:1px solid var(–border);border-radius:8px;background:var(–sky-pale);color:var(–ink);padding:5px 8px;outline:none;width:90px;}
 .m-close{background:none;border:none;font-size:17px;color:var(–ink-soft);cursor:pointer;padding:4px;}
 .m-close:hover{color:var(–ink)}
@@ -402,7 +403,7 @@ border:none;padding:0;
     <div class="m-handle"></div>
     <div class="m-stripe" id="mStripe" data-c="1"></div>
     <div class="m-topbar">
-      <span class="m-title" id="mTitle"></span>
+      <input class="m-title-input" id="mTitle" placeholder="項目名…" maxlength="60">
       <input class="m-time-edit" id="mTime" type="time">
       <button class="m-close" id="mClose">✕</button>
     </div>
@@ -700,7 +701,7 @@ document.getElementById('addName').addEventListener('keydown', e => { if (e.key=
 function openModal(id) {
   curId = String(id);
   const it = (state.items[curDate]||[]).find(x => String(x.id) === curId); if (!it) return;
-  document.getElementById('mTitle').textContent = it.name;
+  document.getElementById('mTitle').value = it.name;
   document.getElementById('mTime').value = it.time || '';
   document.getElementById('mMemo').value = it.memo || '';
   document.getElementById('mStripe').dataset.c = it.color;
@@ -712,7 +713,12 @@ function openModal(id) {
 function closeModal() {
   if (curId && curDate) {
     const it = (state.items[curDate]||[]).find(x => String(x.id) === curId);
-    if (it) { it.memo = document.getElementById('mMemo').value; it.time = document.getElementById('mTime').value; }
+    if (it) {
+      const newName = document.getElementById('mTitle').value.trim();
+      if (newName) it.name = newName;
+      it.memo = document.getElementById('mMemo').value;
+      it.time = document.getElementById('mTime').value;
+    }
     save(); renderItems();
   }
   curId = null; document.getElementById('overlay').classList.remove('open');
